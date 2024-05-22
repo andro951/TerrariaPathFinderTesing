@@ -26,6 +26,7 @@ namespace TerrariaPathFinderTesing {
 
 			return new num(left.significand + right.significand, left.exponent);
 		}
+		public static num operator -(num left, num right) => left + new num(-right.significand, right.exponent);
 		public static num operator *(num left, num right) {
 			if (left.significand > SquareRootOfLongMaxValue || right.significand > SquareRootOfLongMaxValue) {
 				long max = long.MaxValue / left.significand;
