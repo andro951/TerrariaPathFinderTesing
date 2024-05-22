@@ -14,9 +14,18 @@ namespace TerrariaPathFinderTesing {
 			this.significand = significand;
 			this.exponent = exponent;
 		}
-		//public static num operator +(num left, num right) {
+		public static num operator +(num left, num right) {
+			if (left.exponent != rith.exponent) {
+				if (left.exponent > right.exponent) {
+					right.SetExponent(left.exponent);
+				}
+				else {
+					left.SetExponent(right.exponent);
+				}
+			}
 
-		//}
+			return new num(left.significand + right.significand, left.exponent);
+		}
 		public static num operator *(num left, num right) {
 			if (left.significand > SquareRootOfLongMaxValue || right.significand > SquareRootOfLongMaxValue) {
 				long max = long.MaxValue / left.significand;
@@ -38,6 +47,24 @@ namespace TerrariaPathFinderTesing {
 			exponent -= reduction;
 
 			return reduction;
+		}
+		//Use carefully.  Accuricy will be lost by using this function.
+		//Designed to be used to raise an exponent of the lower value before addition/subtraction
+		private void SetExponent(int newExponent) {
+			int diff = newExponent - exponent;
+			if (diff == 0)
+				return;
+
+			if (diff > 0) {
+				long div = (long)Math.Pow(10, diff);
+				significand /= div;
+			}
+			else {
+				long mult = (long)Math.Pow(10, -diff);
+				significand *= mult;
+			}
+
+			exponent = newExponent;
 		}
 		private static void Reduce(ref num left, ref num right, int exp) {//TODO: Check what happens when exp is negative
 			int leftRed;
