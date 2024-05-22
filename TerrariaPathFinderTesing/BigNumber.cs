@@ -8,10 +8,17 @@ namespace TerrariaPathFinderTesing {
 	
 	public struct num {
 		private const long SquareRootOfLongMaxValue = 3037000499;//Square root of long.MaxValue rounded down.  Prevents overflow when multiplying two significands.
-		private long significand;
+		private long significand;//TODO: Make a Significand with a get/setter.  When set, call CalculateSignificandExponent();
 		private int exponent;
+		private int significandExponent;
 		public num (long significand, int exponent) {
 			this.significand = significand;
+			this.exponent = exponent;
+			CalculateSignificandExponent();
+		}
+		private num (long significand, int significandExponent, int exponent) {
+			this.significand = significand;
+			this.significandExponent = significandExponent;
 			this.exponent = exponent;
 		}
 		public static num operator +(num left, num right) {
@@ -66,6 +73,9 @@ namespace TerrariaPathFinderTesing {
 			}
 
 			exponent = newExponent;
+		}
+		private void CalculateSignificandExponent() {
+			significandExponent = Math.floor(Math.Log10(significand));
 		}
 		private static void Reduce(ref num left, ref num right, int exp) {//TODO: Check what happens when exp is negative
 			int leftRed;
