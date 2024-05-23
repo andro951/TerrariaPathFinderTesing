@@ -8,23 +8,23 @@ namespace TerrariaPathFinderTesting {
 	
 	public struct num {
 		private const long SquareRootOfLongMaxValue = 3037000499;//Square root of long.MaxValue rounded down.  Prevents overflow when multiplying two significands.
-		private long significand;
+		private long significand;//= 0;
 		public long Significand {
 			get => significand;
 			private set {
 				significand = value;
-				CalculateSignificandExponent();
+				//CalculateSignificandExponent();
+				OnSetSignificand();
 			}
 		}
 		public readonly int Exponent => exponent;
 		private int exponent;
 		public readonly int SignificandExponent => significandExponent;
-		private int significandExponent;
+		private int significandExponent = 0;
 		public readonly int CombinedExponent => exponent + significandExponent;
 		public num (long significand, int exponent) {
-			this.significand = significand;
 			this.exponent = exponent;
-			significandExponent = CalculateSignificandExponent(significand);
+			this.Significand = significand;//If doesn't work, set significant to 0
 		}
 		//private num (long significand, int significandExponent, int exponent) {
 		//	this.significand = significand;
@@ -57,6 +57,24 @@ namespace TerrariaPathFinderTesting {
 
 			return new num(mult, left.exponent + right.exponent);
 		}
+		public static num operator /(num left, num right) {
+			left.PadSignificand();
+			long div = left.Significand / right.Significand;
+
+			return new num(div, left.exponent - right.exponent);
+		}
+		private void PadSignificand() {
+			long div = long.MaxValue / Significand;
+			if (div < 10)
+				return;
+			
+			int exponentSpace = (int)Math.Log10(div);
+			if (exponentSpace <= 0)
+				return;
+
+			Significand *= (long)Math.Pow(10, exponentSpace);
+			exponent -= exponentSpace;
+		}
 		//Use carefully.  Accuracy will be lost by using this function.
 		//Designed to be used to raise an exponent of the lower value before addition/subtraction
 		private void SetExponent(int newExponent) {
@@ -75,9 +93,26 @@ namespace TerrariaPathFinderTesting {
 
 			exponent = newExponent - significandExponent;
 		}
+		private void OnSetSignificand() {
+			if (!NormalizeSignificand())
+				CalculateSignificandExponent();
+		}
 		private static int CalculateSignificandExponent(long significand) => significand != 0 ? (int)Math.Floor(Math.Log10(Math.Abs(significand))) : 0;
 		private void CalculateSignificandExponent() {
 			significandExponent = CalculateSignificandExponent(Significand);
+		}
+		private bool NormalizeSignificand() {
+			bool changed = false;
+			while (Significand > 0 && Significand % 10 == 0) {
+				significand /= 10;
+				exponent++;
+				changed = true;
+			}
+
+			if (changed)
+				CalculateSignificandExpent();
+
+			return changed;
 		}
 		private static void Reduce(ref num left, ref num right, int exp) {//TODO: Check what happens when exp is negative
 			int leftRed;
