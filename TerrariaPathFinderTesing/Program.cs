@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using TerrariaPathFinderTesing;
+using TerrariaPathFinderTesting;
 
 class Program {
 	public static void Main(string[] args) {

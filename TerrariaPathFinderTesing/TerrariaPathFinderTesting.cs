@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TerrariaPathFinderTesing {
+namespace TerrariaPathFinderTesting {
 	public static class TerrariaPathFinderTesting {
 		private static bool IsPath(int x, int y) {
 			int tileType = MainT.tile[x, y].TileType;
@@ -440,6 +440,12 @@ namespace TerrariaPathFinderTesing {
 	}
 	public static class UtilityMethods {
 		public static void Log(this string s) => Console.WriteLine(s);
+		public static void LogError(this string s) {
+			ConsoleColor originalColor = Console.ForegroundColor;
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("Error: " + s);
+			Console.ForegroundColor = originalColor;
+		}
 		public static void FillArray<T>(ref T[,] arr, int xLen, int yLen, T value) {
 			arr = new T[xLen, yLen];
 			for (int y = 0; y < yLen; y++) {
