@@ -15,7 +15,7 @@ namespace TerrariaPathFinderTesting {
 			return tileType == 3;
 		}
 		public static void Test() {
-			"test".Log();
+			"test".LogSimple();
 			MainT.tile.WriteAll();
 			//C.HasPath(0, 9, 6, 6, 20, (x, y) => MainT.tile[x, y].TileType == 1, MainT.tileMaxX - 1, MainT.tileMaxY - 1);
 			C.HasPath2(9, 0, 20, IsPath, IsTarget, MainT.tileMaxX - 1, MainT.tileMaxY - 1);
@@ -28,10 +28,10 @@ namespace TerrariaPathFinderTesting {
 		public const int Other = 2;
 	}
 
-	public struct Tile {
+	public struct Tile2 {
 		public int TileType;
 		public bool HasTile;
-		public Tile(int type) {
+		public Tile2(int type) {
 			TileType = type;
 			HasTile = TileType != TileID.Air;
 		}
@@ -137,7 +137,7 @@ namespace TerrariaPathFinderTesting {
 			bool hasPath = FindPath2(centerX, centerY, 0);
 
 			PathGrid = null;
-			resultPath.Log();
+			resultPath.LogSimple();
 			resultPath = null;
 
 			return hasPath;
@@ -254,7 +254,7 @@ namespace TerrariaPathFinderTesting {
 			}
 		}
 		private static bool FindPath2(int x, int y, int currentDistance, int fromDirection = -1, int previousFrom = -1) {
-			$"x: {x}, y: {y}, rX: {x + xStart}, rY: {y + yStart}, currentDistance: {currentDistance}, from: {fromDirection}, prevFrom: {previousFrom}".Log();
+			$"x: {x}, y: {y}, rX: {x + xStart}, rY: {y + yStart}, currentDistance: {currentDistance}, from: {fromDirection}, prevFrom: {previousFrom}".LogSimple();
 			int opposite = fromDirection >= 0 ? (fromDirection + 2) % 4 : -1;
 			int previousOpposite = previousFrom >= 0 ? (previousFrom + 2) % 4 : -1;
 			for (int directionID = 0; directionID < 4; directionID++) {
@@ -317,7 +317,7 @@ namespace TerrariaPathFinderTesting {
 			}
 
 			//$"x: {x}, y: {y} return false".Log();
-			"".Log();
+			"".LogSimple();
 			return false;
 		}
 	}
@@ -375,8 +375,8 @@ namespace TerrariaPathFinderTesting {
 		/// <summary>
 		/// Not Safe.  Need to check if out of world before using.
 		/// </summary>
-		public static Tile[] GetTiles(int x, int y) {
-			Tile[] tiles = new Tile[5];
+		public static Tile2[] GetTiles(int x, int y) {
+			Tile2[] tiles = new Tile2[5];
 			tiles[None] = MainT.tile[x, y];
 			tiles[Left] = MainT.tile[x - 1, y];
 			tiles[Right] = MainT.tile[x + 1, y];
@@ -390,7 +390,7 @@ namespace TerrariaPathFinderTesting {
 	public static class MainT {
 		public static int tileMaxX;
 		public static int tileMaxY;
-		public static Tile[,] tile {
+		public static Tile2[,] tile {
 			get {
 				if (_tile == null)
 					SetupTile();
@@ -398,7 +398,7 @@ namespace TerrariaPathFinderTesting {
 				return _tile;
 			}
 		}
-		public static void WriteAll(this Tile[,] tiles) {
+		public static void WriteAll(this Tile2[,] tiles) {
 			string s = "";
 			int xLen = tileMaxX;
 			int yLen = tileMaxY;
@@ -416,22 +416,22 @@ namespace TerrariaPathFinderTesting {
 				s += "\n";
 			}
 			s += "\n";
-			s.Log();
+			s.LogSimple();
 		}
-		private static Tile[,] _tile = null;
+		private static Tile2[,] _tile = null;
 		private static void SetupTile() {
-			_tile = new Tile[10, 10]
+			_tile = new Tile2[10, 10]
 			{
-		{ new Tile(1), new Tile(2), new Tile(2), new Tile(2), new Tile(1), new Tile(0), new Tile(2), new Tile(0), new Tile(1), new Tile(2) },
-		{ new Tile(1), new Tile(1), new Tile(2), new Tile(0), new Tile(2), new Tile(1), new Tile(0), new Tile(2), new Tile(0), new Tile(1) },
-		{ new Tile(1), new Tile(0), new Tile(1), new Tile(2), new Tile(0), new Tile(2), new Tile(1), new Tile(0), new Tile(2), new Tile(0) },
-		{ new Tile(1), new Tile(2), new Tile(1), new Tile(1), new Tile(2), new Tile(1), new Tile(2), new Tile(1), new Tile(0), new Tile(2) },
-		{ new Tile(1), new Tile(0), new Tile(2), new Tile(1), new Tile(1), new Tile(1), new Tile(0), new Tile(2), new Tile(1), new Tile(0) },
-		{ new Tile(1), new Tile(1), new Tile(1), new Tile(1), new Tile(0), new Tile(1), new Tile(2), new Tile(0), new Tile(2), new Tile(1) },
-		{ new Tile(1), new Tile(2), new Tile(1), new Tile(0), new Tile(2), new Tile(1), new Tile(3), new Tile(2), new Tile(0), new Tile(2) },
-		{ new Tile(1), new Tile(1), new Tile(1), new Tile(1), new Tile(1), new Tile(2), new Tile(0), new Tile(1), new Tile(2), new Tile(0) },
-		{ new Tile(1), new Tile(1), new Tile(2), new Tile(0), new Tile(2), new Tile(0), new Tile(2), new Tile(0), new Tile(2), new Tile(0) },
-		{ new Tile(1), new Tile(1), new Tile(0), new Tile(1), new Tile(0), new Tile(1), new Tile(0), new Tile(1), new Tile(0), new Tile(1) }
+		{ new Tile2(1), new Tile2(2), new Tile2(2), new Tile2(2), new Tile2(1), new Tile2(0), new Tile2(2), new Tile2(0), new Tile2(1), new Tile2(2) },
+		{ new Tile2(1), new Tile2(1), new Tile2(2), new Tile2(0), new Tile2(2), new Tile2(1), new Tile2(0), new Tile2(2), new Tile2(0), new Tile2(1) },
+		{ new Tile2(1), new Tile2(0), new Tile2(1), new Tile2(2), new Tile2(0), new Tile2(2), new Tile2(1), new Tile2(0), new Tile2(2), new Tile2(0) },
+		{ new Tile2(1), new Tile2(2), new Tile2(1), new Tile2(1), new Tile2(2), new Tile2(1), new Tile2(2), new Tile2(1), new Tile2(0), new Tile2(2) },
+		{ new Tile2(1), new Tile2(0), new Tile2(2), new Tile2(1), new Tile2(1), new Tile2(1), new Tile2(0), new Tile2(2), new Tile2(1), new Tile2(0) },
+		{ new Tile2(1), new Tile2(1), new Tile2(1), new Tile2(1), new Tile2(0), new Tile2(1), new Tile2(2), new Tile2(0), new Tile2(2), new Tile2(1) },
+		{ new Tile2(1), new Tile2(2), new Tile2(1), new Tile2(0), new Tile2(2), new Tile2(1), new Tile2(3), new Tile2(2), new Tile2(0), new Tile2(2) },
+		{ new Tile2(1), new Tile2(1), new Tile2(1), new Tile2(1), new Tile2(1), new Tile2(2), new Tile2(0), new Tile2(1), new Tile2(2), new Tile2(0) },
+		{ new Tile2(1), new Tile2(1), new Tile2(2), new Tile2(0), new Tile2(2), new Tile2(0), new Tile2(2), new Tile2(0), new Tile2(2), new Tile2(0) },
+		{ new Tile2(1), new Tile2(1), new Tile2(0), new Tile2(1), new Tile2(0), new Tile2(1), new Tile2(0), new Tile2(1), new Tile2(0), new Tile2(1) }
 			};
 
 			tileMaxX = _tile.GetLength(0);
@@ -439,7 +439,7 @@ namespace TerrariaPathFinderTesting {
 		}
 	}
 	public static class UtilityMethods {
-		public static void Log(this string s) => Console.WriteLine(s);
+		public static void LogSimple(this string s) => Console.WriteLine(s);
 		public static void LogError(this string s) {
 			ConsoleColor originalColor = Console.ForegroundColor;
 			Console.ForegroundColor = ConsoleColor.Red;

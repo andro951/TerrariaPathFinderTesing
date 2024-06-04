@@ -11,23 +11,23 @@ namespace TerrariaPathFinderTesting {
 			long sqrt = (long)Math.Sqrt(long.MaxValue);//3037000499, 1011_0101_0000_0100_1111_0011_0011_0011
 			long max = 0b0111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
 			long max2 = 0x7FFFFFFFFFFFFFFF;
-			$"max: {max}, max2: {max2}, long.MaxValue: {long.MaxValue}".Log();
+			$"max: {max}, max2: {max2}, long.MaxValue: {long.MaxValue}".LogSimple();
 			long sqr = sqrt * sqrt;
 			long min = long.MaxValue - sqr;
 			long div = min / long.MaxValue;
-			$"sqrt: {sqrt}, sqr: {sqr}, min: {min}, div: {div}".Log();
-			$"sqrt in binary: {Convert.ToString(sqrt, 2)}".Log();
+			$"sqrt: {sqrt}, sqr: {sqr}, min: {min}, div: {div}".LogSimple();
+			$"sqrt in binary: {Convert.ToString(sqrt, 2)}".LogSimple();
 
 			long SquareRootOfLong = 3037000499;
 			long test = (SquareRootOfLong + 1) * (SquareRootOfLong + 1);
-			$"test: {test}".Log();
+			$"test: {test}".LogSimple();
 
 			num left = new(684127, 100);
 			num right = new(25, 1);
 			num mult = left * right;
-			$"left: {left}, right: {right}, mult: {mult}".Log();
+			$"left: {left}, right: {right}, mult: {mult}".LogSimple();
 			num add = left + right;
-			$"left: {left}, right: {right}, add: {add}".Log();
+			$"left: {left}, right: {right}, add: {add}".LogSimple();
 
 			Test_CalculateSignificandExponent();
 		}
@@ -93,12 +93,12 @@ namespace TerrariaPathFinderTesting {
 
 		private static bool logAllInfo_CalculateSignificandExponent => true || logAllInfo;
 		public static void Test_CalculateSignificandExponent() {
-			$"Test_CalculateSignificandExponent".Log();
+			$"Test_CalculateSignificandExponent".LogSimple();
 			foreach (TestData_CalculateSignificandExponent testData in testData_CalculateSignificandExponents) {
 				num testNum = new(testData.Significand, testData.Exponent);
 
 				if (logAllInfo_CalculateSignificandExponent)
-					$"testNum.Significand: {testNum.Significand}, testData.Significand: {testData.Significand}, testNum: {testNum}".Log();
+					$"testNum.Significand: {testNum.Significand}, testData.Significand: {testData.Significand}, testNum: {testNum}".LogSimple();
 
 				if (testNum.Significand != testData.Significand) {
 					$"testNum.Significand != testData.Significand, testNum.Significand: {testNum.Significand}, testData.Significand: {testData.Significand}, testNum: {testNum}".LogError();
@@ -106,7 +106,7 @@ namespace TerrariaPathFinderTesting {
 
 
 				if (logAllInfo_CalculateSignificandExponent)
-					$"testNum.Exponent: {testNum.Exponent}, testData.ExpectedExponent: {testData.ExpectedExponent}, testNum: {testNum}".Log();
+					$"testNum.Exponent: {testNum.Exponent}, testData.ExpectedExponent: {testData.ExpectedExponent}, testNum: {testNum}".LogSimple();
 
 				if (testNum.Exponent != testData.ExpectedExponent) {
 					$"testNum.Exponent != testData.ExpectedExponent, testNum.Exponent: {testNum.Exponent}, testData.ExpectedExponent: {testData.ExpectedExponent}, testNum: {testNum}".LogError();
@@ -114,7 +114,7 @@ namespace TerrariaPathFinderTesting {
 
 
 				if (logAllInfo_CalculateSignificandExponent)
-					$"testNum.SignificandExponent: {testNum.SignificandExponent}, testData.ExpectedSignificandExponent: {testData.ExpectedSignificandExponent}, testNum: {testNum}".Log();
+					$"testNum.SignificandExponent: {testNum.SignificandExponent}, testData.ExpectedSignificandExponent: {testData.ExpectedSignificandExponent}, testNum: {testNum}".LogSimple();
 
 				if (testNum.SignificandExponent != testData.ExpectedSignificandExponent) {
 					$"testNum.SignificandExponent != testData.ExpectedSignificandExponent, testNum.SignificandExponent: {testNum.SignificandExponent}, testData.ExpectedSignificandExponent: {testData.ExpectedSignificandExponent}, testNum: {testNum}".LogError();
@@ -122,7 +122,7 @@ namespace TerrariaPathFinderTesting {
 
 
 				if (logAllInfo_CalculateSignificandExponent)
-					$"testNum.ToString(): {testNum.ToString()}, testData.ExpectedToStringScientific2: {testData.ExpectedToStringScientific2}".Log();
+					$"testNum.ToString(): {testNum.ToString()}, testData.ExpectedToStringScientific2: {testData.ExpectedToStringScientific2}".LogSimple();
 
 				if (testNum.ToString() != testData.ExpectedToStringScientific2) {
 					$"testNum.ToString() != testData.ExpectedToStringScientific2, testNum.ToString(): {testNum.ToString()}, testData.ExpectedToStringScientific2: {testData.ExpectedToStringScientific2}".LogError();
@@ -131,7 +131,7 @@ namespace TerrariaPathFinderTesting {
 
 				int d = 3;
 				if (logAllInfo_CalculateSignificandExponent)
-					$"testNum.S({d}): {testNum.S(d)}, testData.ExpectedToStringScientific3: {testData.ExpectedToStringScientific3}".Log();
+					$"testNum.S({d}): {testNum.S(d)}, testData.ExpectedToStringScientific3: {testData.ExpectedToStringScientific3}".LogSimple();
 
 				if (testNum.S(d) != testData.ExpectedToStringScientific3) {
 					$"testNum.S({d}) != testData.ExpectedToStringScientific3, testNum.S({d}): {testNum.S(d)}, testData.ExpectedToStringScientific3: {testData.ExpectedToStringScientific3}".LogError();
@@ -140,7 +140,7 @@ namespace TerrariaPathFinderTesting {
 
 				d = 2;
 				if (logAllInfo_CalculateSignificandExponent)
-					$"testNum.S({d}, false): {testNum.S(d, false)}, testData.ExpectedToString2: {testData.ExpectedToString2}".Log();
+					$"testNum.S({d}, false): {testNum.S(d, false)}, testData.ExpectedToString2: {testData.ExpectedToString2}".LogSimple();
 
 				if (testNum.S(d, false) != testData.ExpectedToString2) {
 					$"testNum.S({d}, false) != testData.ExpectedToString2, testNum.S({d}, false): {testNum.S(d, false)}, testData.ExpectedToString2: {testData.ExpectedToString2}".LogError();
@@ -148,7 +148,7 @@ namespace TerrariaPathFinderTesting {
 
 				d = 3;
 				if (logAllInfo_CalculateSignificandExponent)
-					$"testNum.S({d}, false): {testNum.S(d, false)}, testData.ExpectedToString3: {testData.ExpectedToString3}".Log();
+					$"testNum.S({d}, false): {testNum.S(d, false)}, testData.ExpectedToString3: {testData.ExpectedToString3}".LogSimple();
 
 				if (testNum.S(d, false) != testData.ExpectedToString3) {
 					$"testNum.S({d}, false) != testData.ExpectedToString3, testNum.S({d}, false): {testNum.S(d, false)}, testData.ExpectedToString3: {testData.ExpectedToString3}".LogError();
@@ -156,7 +156,7 @@ namespace TerrariaPathFinderTesting {
 
 
 				if (logAllInfo_CalculateSignificandExponent)
-					"".Log();//Space
+					"".LogSimple();//Space
 			}
 		}
 	}
