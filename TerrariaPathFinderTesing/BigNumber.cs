@@ -110,7 +110,7 @@ namespace TerrariaPathFinderTesting {
 			}
 
 			if (changed)
-				CalculateSignificandExpent();
+				CalculateSignificandExponent();
 
 			return changed;
 		}
