@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -16,8 +17,9 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace TerrariaPathFinderTesing {
 	internal static class WorldIO_Testing {
 		public static void TileDataAccessTesting() {
-			SaveWorld();
-			LoadWorld(false);
+			//SaveWorld();
+			//LoadWorld(false);
+			SaveLoadWorldTesting();
 		}
 		private static string taWorldPathName => Main.worldPathName?.Replace(".wld", ".tawld");
 		public static void SaveWorld() {
@@ -78,10 +80,10 @@ namespace TerrariaPathFinderTesing {
 			string s = "";
 			if (Debugger.IsAttached) {
 				stopwatch?.Stop();
-				s = $" ticks: {stopwatch?.ElapsedTicks}, ms: {stopwatch?.ElapsedMilliseconds}";
+				s = $" ticks: {stopwatch?.ElapsedTicks}, ms: {stopwatch?.ElapsedMilliseconds}, bytes: {new FileInfo(pathName).Length}";
 			}
 
-			$"Completed Saving Terraria Automations World Data.{s}".LogSimple();
+			$"Completed Saving Andro Mod World Data.{s}".LogSimple();
 
 			byte[] array2 = null;
 			if (FileUtilities.Exists(pathName, useCloudSaving))
@@ -91,65 +93,14 @@ namespace TerrariaPathFinderTesing {
 			array = FileUtilities.ReadAllBytes(pathName, useCloudSaving);
 
 
-			for (int i = 0; i < array.Length; i++) {
-				byte b = array[i];
-				$"b{i}: {b.ToBinaryString()}".LogSimple();
-			}
+			//for (int i = 0; i < array.Length; i++) {
+			//	byte b = array[i];
+			//	$"b{i}: {b.ToBinaryString()}".LogSimple();
+			//}
 		}
 		private static byte[] _tile = new byte[Main.maxTilesX * Main.maxTilesY];
 		private static void SaveWorld_Version2(BinaryWriter writer) {
-			for (uint z = 0; z < (uint)Main.maxTilesX * (uint)Main.maxTilesY; z++) {
-				z.GetTile().HasPipe(true);
-			}
-
-			Main.tile[10, 5].PipeType(13);
-
-			//SaveWorldTesting(writer);
-			//return;
-			writer.Write((ushort)Main.maxTilesX);
-			writer.Write((ushort)Main.maxTilesY);
-
-			//determine pipeTypes byte(bits needed to represent largest number)
-			//write Main.maxTilesX
-			//write Main.maxTilesY
-			SortedSet<byte> pipeTypesSet = new();
-			uint count = (uint)Main.maxTilesX * (uint)Main.maxTilesY;
-			for (uint z = 0; z < count; z++) {
-				Tile tile = z.GetTile();
-				pipeTypesSet.Add(tile.PipeData());
-			}
-
-			byte pipeTypes = (byte)pipeTypesSet.Count;
-			writer.Write(pipeTypes);
-			uint numBitsNeededForPipeId = pipeTypes.BitsNeeded();//TODO:
-			uint maxBitsInTileCountRepresentation = count.BitsNeeded();//TODO:
-																		//writer.Write((byte)maxBitsInTileCountRepresentation);//Can be calculated since saving Main.maxTiles
-
-			byte[] pipeTypesArr = pipeTypesSet.ToArray();
-			Dictionary<byte, byte> pipeIds = new();//Try to store i as the bits value instead of having to convert it every time.//TODO:
-			for (byte i = 0; i < pipeTypes; i++) {
-				byte pypeType = pipeTypesArr[i];
-				pipeIds.Add(pypeType, i);
-				writer.Write(pypeType);// write pipeTypesArr[i] as a byte!!!
-			}
-
-			for (uint z = 0; z < count;) {
-				Tile tile = z.GetTile();
-				byte pipeData = tile.PipeData();
-				writer.Write(pipeIds[pipeData]);
-
-				//write a maxBitsInTileCountRepresentation to tell how many bits should be read for the number of tiles
-				uint startZ = z;
-				while (++z < count) {
-					byte otherData = z.GetTile().PipeData();
-					if (otherData != pipeData)
-						break;
-				}
-
-				uint tileCount = z - startZ;//Make sure z is decremented after the -
-				writer.Write(tileCount);
-				//write tileCount as a maxBitsInTileCountRepresentation.//TODO:
-			}
+			
 		}
 		public static void LoadWorld(bool loadFromCloud) {
 			bool flag = loadFromCloud /*&& SocialAPI.Cloud != null*/;
@@ -206,6 +157,9 @@ namespace TerrariaPathFinderTesing {
 			}
 		}
 		private static void LoadWorld_Version2(BinaryReader reader) {
+			
+		}
+		private static void LoadWorldTiles(BinaryReader reader) {
 			//LoadWorldTiles(reader);
 			//return;
 			uint maxTilesX = reader.ReadUInt16();
@@ -221,6 +175,7 @@ namespace TerrariaPathFinderTesing {
 				pipeIds.Add(i, reader.ReadByte());
 			}
 
+			TilePipeData[] tilePipeData = Main.tile.GetData<TilePipeData>();
 			for (uint z = 0; z < count;) {
 				byte pipeData = pipeIds[reader.ReadByte()];
 				uint tileCount = reader.ReadUInt32();
@@ -230,52 +185,383 @@ namespace TerrariaPathFinderTesing {
 				}
 				else {
 					while (z < zEnd) {
-						z.GetTile().PipeData(pipeData);
-						z++;
+						tilePipeData[z++].PipeData = pipeData;
 					}
 				}
 			}
 		}
-		private static void LoadWorldTiles(BinaryReader reader) {
-			LoadWorldTesting(reader);
+		private static void SaveLoadWorldTesting() {
+			Action<BinaryWriter>[] saveWorldFunctions = [SaveWorld1, SaveWorld2];
+			Action<BinaryReader>[] loadWorldFunctions = [LoadWorld1, LoadWorld2];
+			Action[] tileConfigurations = [SetTiles1, SetTiles2, SetTiles3];
+			for (int j = 0; j < tileConfigurations.Length; j++) {
+				for (int i = 0; i < saveWorldFunctions.Length; i++) {
+					//Save
+					try {
+						if (Main.worldName == "")
+							Main.worldName = "World";
+
+						try {
+							FileUtilities.ProtectedInvoke(delegate {
+								Utils.TryCreatingDirectory(Main.WorldPath);
+
+								string pathName = taWorldPathName;
+								if (pathName == null)
+									return;
+
+								//Stopwatch stopwatch = null;
+								//if (Debugger.IsAttached)
+								//	stopwatch = Stopwatch.StartNew();
+
+								tileConfigurations[j]();
+								//UpdateSaveString();
+
+								int num;
+								byte[] array;
+								using (MemoryStream memoryStream = new MemoryStream(7000000)) {
+									using (BinaryWriter writer = new BinaryWriter(memoryStream)) {
+										TestSaveWorld(saveWorldFunctions[i], writer);
+									}
+
+									array = memoryStream.ToArray();
+									num = array.Length;
+								}
+
+								//string s = "";
+								//if (Debugger.IsAttached) {
+								//	stopwatch?.Stop();
+								//	s = $" ticks: {stopwatch?.ElapsedTicks}, ms: {stopwatch?.ElapsedMilliseconds}, bytes: {new FileInfo(pathName).Length}";
+								//}
+
+								//$"Completed Saving Andro Mod World Data.{s}".LogSimple();
+
+								byte[] array2 = null;
+								if (FileUtilities.Exists(pathName, false))
+									array2 = FileUtilities.ReadAllBytes(pathName, false);
+
+								FileUtilities.Write(pathName, array, num, false);
+								array = FileUtilities.ReadAllBytes(pathName, false);
+
+
+								string s = "";
+								if (Debugger.IsAttached) {
+									SaveStopWatch?.Stop();
+									s = $" ticks: {SaveStopWatch?.ElapsedTicks}, ms: {SaveStopWatch?.ElapsedMilliseconds}, bytes: {new FileInfo(pathName).Length}";
+								}
+
+								$"Completed Saving Andro Mod World Data.{s}".LogSimple();
+							});
+						}
+						finally {
+
+						}
+					}
+					catch (Exception exception) {
+						$"Failed to save world; exception: {exception}".LogSimple();
+						//FancyErrorPrinter.ShowFileSavingFailError(exception, Main.WorldPath);
+						throw;
+					}
+
+					//Load
+					bool flag = false /*&& SocialAPI.Cloud != null*/;
+					string pathName = taWorldPathName;
+					if (!FileUtilities.Exists(pathName, flag) && Main.autoGen) {
+						if (!flag) {
+							for (int num = pathName.Length - 1; num >= 0; num--) {
+								if (pathName.Substring(num, 1) == (Path.DirectorySeparatorChar.ToString() ?? "")) {
+									string temp = pathName.Substring(0, num);//TODO: delete
+									Utils.TryCreatingDirectory(pathName.Substring(0, num));
+									break;
+								}
+							}
+						}
+
+						Main.tile.ClearEverything();
+						SaveWorld();
+					}
+
+					try {
+						using MemoryStream memoryStream = new MemoryStream(FileUtilities.ReadAllBytes(pathName, flag));
+						using BinaryReader binaryReader = new BinaryReader(memoryStream);
+						try {
+							TestLoadWorld(loadWorldFunctions[i], binaryReader);
+							binaryReader.Close();
+							memoryStream.Close();
+							//UpdateLoadString();
+
+							string s = "";
+							if (Debugger.IsAttached) {
+								LoadStopWatch?.Stop();
+								s = $" ticks: {LoadStopWatch?.ElapsedTicks}, ms: {LoadStopWatch?.ElapsedMilliseconds}, bytes: {new FileInfo(pathName).Length}";
+							}
+
+							$"Completed Loading Andro Mod World Data.{s}".LogSimple();
+
+							//if (SaveString != LoadString)
+							//	$"SaveString != LoadStting!!!!!".LogSimple();
+						}
+						catch (Exception lastThrownLoadException) {
+							$"failed to load world. {lastThrownLoadException}".LogSimple();
+							try {
+								binaryReader.Close();
+								memoryStream.Close();
+								return;
+							}
+							catch {
+								return;
+							}
+						}
+					}
+					catch (Exception lastThrownLoadException2) {
+						$"failed to load world. {lastThrownLoadException2}".LogSimple();
+						return;
+					}
+				}
+			}
 		}
-		private static (uint num, int bits)[] nums = [
-			(5, 7),
-			(1, 1),
-			(1, 1),
-			(1, 2),
-			(3, 8),
-			(10, 4),
-			(13, 8),
-			(1, 1),
-		];
-		private static TestWriter testWriter = new();
-		private static void SaveWorldTesting(BinaryWriter writer) {
-			testWriter = new();
-			foreach ((uint num, int bits) n in nums) {
-				testWriter.WriteNumber(n.num, n.bits);
+		private static void SetTiles1() {
+			int count = Main.maxTilesX * Main.maxTilesY;
+			TilePipeData[] tilePipeData = Main.tile.GetData<TilePipeData>();
+			for (uint z = 0; z < count; z++) {
+				tilePipeData[z].HasPipe = true;
 			}
 
-			$"writer: {testWriter}".LogSimple();
+			Main.tile[10, 5].PipeType(13);
+		}
+		private static void SetTiles2() {
+			int count = Main.maxTilesX * Main.maxTilesY;
+			byte[] bytes = RandomNumberGenerator.GetBytes(count);
+			TilePipeData[] tilePipeData = Main.tile.GetData<TilePipeData>();
+			for (uint z = 0; z < count; z++) {
+				tilePipeData[z].PipeData = bytes[z];
+			}
+		}
+		private static void SetTiles3() {
+			int count = Main.maxTilesX * Main.maxTilesY;
+			byte[] bytes = RandomNumberGenerator.GetBytes(count);
+			TilePipeData[] tilePipeData = Main.tile.GetData<TilePipeData>();
+			for (uint z = 0; z < count; z++) {
+				if (rand.Next(10000) == 1)
+					tilePipeData[z].PipeData = bytes[z];
+			}
+		}
+		private static Random rand = new Random();
+		private static Stopwatch SaveStopWatch;
+		private static Stopwatch LoadStopWatch;
+		private static void TestSaveWorld(Action<BinaryWriter> saveWorld, BinaryWriter writer) {
+			SaveStopWatch = Stopwatch.StartNew();
+			saveWorld(writer);
+			SaveStopWatch.Stop();
+		}
+		private static void TestLoadWorld(Action<BinaryReader> loadWorld, BinaryReader reader) {
+			LoadStopWatch = Stopwatch.StartNew();
+			loadWorld(reader);
+			LoadStopWatch.Stop();
+		}
+		private static void SaveWorld1(BinaryWriter writer) {
+			writer.Write((ushort)Main.maxTilesX);
+			writer.Write((ushort)Main.maxTilesY);
+			SortedSet<byte> pipeTypesSet = new();
+			uint count = (uint)Main.maxTilesX * (uint)Main.maxTilesY;
+			TilePipeData[] tilePipeData = Main.tile.GetData<TilePipeData>();
+			for (uint z = 0; z < count; z++) {
+				pipeTypesSet.Add(tilePipeData[z].PipeData);
+			}
 
-			foreach ((uint num, int bits) n in nums) {
-				writer.WriteNumber(n.num, n.bits);
+			byte pipeTypes = (byte)(pipeTypesSet.Count - 1);
+			writer.Write(pipeTypes);
+			uint numBitsNeededForPipeId = pipeTypes.BitsNeeded();
+			uint maxBitsInTileCountRepresentation = count.BitsNeeded();
+
+			byte[] pipeTypesArr = pipeTypesSet.ToArray();
+			Dictionary<byte, byte> pipeIds = new();
+			for (uint i = 0; i <= pipeTypes; i++) {
+				byte pipeData = pipeTypesArr[i];
+				pipeIds.Add(pipeData, (byte)i);
+
+				writer.Write(pipeData);
+			}
+
+			for (uint z = 0; z < count;) {
+				//Tile tile = z.GetTile();
+				byte pipeData = tilePipeData[z].PipeData;
+				if (pipeIds.ContainsKey(pipeData)) {
+					writer.Write(pipeIds[pipeData]);
+				}
+				else {
+					$"Failed to find {pipeData} in pipeIDs. z: {z}".LogSimple();
+				}
+
+				//write a maxBitsInTileCountRepresentation to tell how many bits should be read for the number of tiles
+				uint startZ = z;
+				while (++z < count) {
+					byte otherData = tilePipeData[z].PipeData;
+					if (otherData != pipeData)
+						break;
+				}
+
+				uint tileCount = z - startZ;//Make sure z is decremented after the -
+				writer.Write(tileCount);
+				//write tileCount as a maxBitsInTileCountRepresentation.//TODO:
+			}
+		}
+		private static void LoadWorld1(BinaryReader reader) {
+			uint maxTilesX = reader.ReadUInt16();
+			uint maxTilesY = reader.ReadUInt16();
+
+			byte pipeTypes = reader.ReadByte();
+			uint count = maxTilesX * maxTilesY;
+			uint numBitsNeededForPipeId = pipeTypes.BitsNeeded();//TODO:
+			uint maxBitsInTileCountRepresentation = count.BitsNeeded();//TODO:
+
+			Dictionary<byte, byte> pipeIds = new();//reverse of reader
+			for (uint i = 0; i <= pipeTypes; i++) {
+				pipeIds.Add((byte)i, reader.ReadByte());
+			}
+
+			TilePipeData[] tilePipeData = Main.tile.GetData<TilePipeData>();
+			for (uint z = 0; z < count;) {
+				byte pipeData = pipeIds[reader.ReadByte()];
+				uint tileCount = reader.ReadUInt32();
+				uint zEnd = z + tileCount;
+				if (pipeData == TilePipeData.Empty) {
+					z = zEnd;
+				}
+				else {
+					while (z < zEnd) {
+						tilePipeData[z++].PipeData = pipeData;
+					}
+				}
+			}
+		}
+		private static void SaveWorld2(BinaryWriter writer) {
+			//SaveWorldTesting(writer);
+			//return;
+			writer.Write((ushort)Main.maxTilesX);
+			writer.Write((ushort)Main.maxTilesY);
+
+			//determine pipeTypes byte(bits needed to represent largest number)
+			//write Main.maxTilesX
+			//write Main.maxTilesY
+			SortedSet<byte> pipeTypesSet = new();
+			uint count = (uint)Main.maxTilesX * (uint)Main.maxTilesY;
+			uint inARowCounter = 0;
+			uint inARowHighest = 0;
+			byte tileBeingCounted = 0;//This may end up 1 higher than it is, but that's insignificant.
+			TilePipeData[] tilePipeData = Main.tile.GetData<TilePipeData>();
+			for (uint z = 0; z < count; z++) {
+				byte tileData = tilePipeData[z].PipeData;
+				pipeTypesSet.Add(tileData);
+				if (tileData == tileBeingCounted) {
+					inARowCounter++;
+				}
+				else {
+					if (inARowHighest < inARowCounter)
+						inARowHighest = inARowCounter;
+
+					tileBeingCounted = tileData;
+					inARowCounter = 1;
+				}
+			}
+
+			if (inARowHighest < inARowCounter)
+				inARowHighest = inARowCounter;
+
+			byte pipeTypes = (byte)(pipeTypesSet.Count - 1);
+			writer.Write(pipeTypes);
+			uint numBitsNeededForPipeId = pipeTypes.BitsNeeded();
+			uint maxBitsInTileCountRepresentation = inARowHighest.BitsNeeded();
+			writer.Write(maxBitsInTileCountRepresentation);
+
+			byte[] pipeTypesArr = pipeTypesSet.ToArray();
+			bool usesIdLookup = numBitsNeededForPipeId < 8;
+			writer.Write(usesIdLookup);
+			if (usesIdLookup) {
+				Dictionary<byte, uint_b> pipeIds = new();
+				for (uint i = 0; i <= pipeTypes; i++) {
+					byte pipeType = pipeTypesArr[i];
+					pipeIds.Add(pipeType, new(i, numBitsNeededForPipeId));
+					writer.Write(pipeType);
+				}
+
+				for (uint z = 0; z < count;) {
+					byte pipeData = tilePipeData[z].PipeData;
+					writer.WriteNum(pipeIds[pipeData]);
+
+					uint startZ = z;
+					while (++z < count) {
+						byte otherData = tilePipeData[z].PipeData;
+						if (otherData != pipeData)
+							break;
+					}
+
+					uint tileCount = z - startZ;
+					writer.WriteNum(tileCount, maxBitsInTileCountRepresentation);//Can be taken 1 step further by using 5 bits to determining how long the current number is instead and writing those 5 and the number.
+				}
+			}
+			else {
+				for (uint z = 0; z < count;) {
+					byte pipeData = tilePipeData[z].PipeData;
+					writer.WriteNum(pipeData, numBitsNeededForPipeId);
+
+					uint startZ = z;
+					while (++z < count) {
+						byte otherData = tilePipeData[z].PipeData;
+						if (otherData != pipeData)
+							break;
+					}
+
+					uint tileCount = z - startZ;
+					writer.WriteNum(tileCount, maxBitsInTileCountRepresentation);//Can be taken 1 step further by using 5 bits to determining how long the current number is instead and writing those 5 and the number.
+				}
 			}
 
 			writer.Finish();
 		}
-		private static void LoadWorldTesting(BinaryReader reader) {
-			TestReader testReader = new(testWriter.Value);
-			foreach ((uint num, int bits) n in nums) {
-				uint result = testReader.ReadNumber(n.bits);
-				$"({result}, {n.bits}),".LogSimple();
+		private static void LoadWorld2(BinaryReader reader) {
+			uint maxTilesX = reader.ReadUInt16();
+			uint maxTilesY = reader.ReadUInt16();
+
+			byte pipeTypes = reader.ReadByte();
+			uint count = maxTilesX * maxTilesY;
+			uint numBitsNeededForPipeId = pipeTypes.BitsNeeded();//TODO:
+			uint maxBitsInTileCountRepresentation = reader.ReadUInt32();//TODO:
+			bool usesIdLookup = reader.ReadBoolean();
+			TilePipeData[] tilePipeData = Main.tile.GetData<TilePipeData>();
+			if (usesIdLookup) {
+				Dictionary<uint, byte> pipeIds = new();//reverse of reader
+				for (uint i = 0; i <= pipeTypes; i++) {
+					pipeIds.Add(i, reader.ReadByte());
+				}
+
+				for (uint z = 0; z < count;) {
+					byte pipeData = pipeIds[reader.ReadNum(numBitsNeededForPipeId)];
+					uint tileCount = reader.ReadNum(maxBitsInTileCountRepresentation);
+					uint zEnd = z + tileCount;
+					if (pipeData == TilePipeData.Empty) {
+						z = zEnd;
+					}
+					else {
+						while (z < zEnd) {
+							tilePipeData[z++].PipeData = pipeData;
+						}
+					}
+				}
 			}
-
-			$"reader: {testReader}".LogSimple();
-
-			foreach ((uint num, int bits) n in nums) {
-				uint result = reader.ReadNumber(n.bits);
-				$"({result}, {n.bits}),".LogSimple();
+			else {
+				for (uint z = 0; z < count;) {
+					byte pipeData = (byte)reader.ReadNum(numBitsNeededForPipeId);
+					uint tileCount = reader.ReadNum(maxBitsInTileCountRepresentation);
+					uint zEnd = z + tileCount;
+					if (pipeData == TilePipeData.Empty) {
+						z = zEnd;
+					}
+					else {
+						while (z < zEnd) {
+							tilePipeData[z++].PipeData = pipeData;
+						}
+					}
+				}
 			}
 
 			reader.Finish();
@@ -371,10 +657,10 @@ namespace TerrariaPathFinderTesing {
 		internal static string WorldPath = @"E:\Source\Repos\TerrariaPathFinderTesing\WorldIO_Testing";
 		public static float rightWorld = 134400f;
 		public static float bottomWorld = 38400f;
-		//public static int maxTilesX = (int)rightWorld / 16 + 1;
-		//public static int maxTilesY = (int)bottomWorld / 16 + 1;
-		public static int maxTilesX = 30;
-		public static int maxTilesY = 20;
+		public static int maxTilesX = (int)rightWorld / 16 + 1;
+		public static int maxTilesY = (int)bottomWorld / 16 + 1;
+		//public static int maxTilesX = 30;
+		//public static int maxTilesY = 20;
 		public static Tilemap tile = new((ushort)maxTilesX, (ushort)maxTilesY);
 		public static bool autoGen = true;
 	}

@@ -7,8 +7,8 @@ using static TerrariaPathFinderTesing.TileData.TA_TileData.BinaryHelper;
 
 namespace TerrariaPathFinderTesing.TileData.TA_TileData {
 	public static class BinaryHelper {
-		public static byte BitsNeeded(this byte b) => b == 0 ? (byte)1 : (byte)(byte.Log2(b) + 1);
-		public static uint BitsNeeded(this uint i) => i == 0 ? 1 : (uint.Log2(i) + 1);
+		public static uint BitsNeeded(this byte b) => (uint)byte.Log2(b) + 1;
+		public static uint BitsNeeded(this uint i) => uint.Log2(i) + 1;
 		internal const int byteNum = 8;
 		internal const int ushortNum = 16;
 		internal const int uintNum = 32;
@@ -104,21 +104,28 @@ namespace TerrariaPathFinderTesing.TileData.TA_TileData {
 				Reset();
 			}
 		}
-		public static void WriteNumber(this BinaryWriter writer, uint num, uint bits) {
+		public static void WriteNum(this BinaryWriter writer, uint num, uint bits) {
 			uint c = 0b1;
 			for (uint i = 0; i < bits; i++) {
 				writer.WriteBool((num & c) != 0);
 				c <<= 1;
 			}
 		}
-		public static void WriteNumber(this BinaryWriter writer, uint num, int bits) {
+		public static void WriteNum(this BinaryWriter writer, byte num, uint bits) {
+			uint c = 0b1;
+			for (uint i = 0; i < bits; i++) {
+				writer.WriteBool((num & c) != 0);
+				c <<= 1;
+			}
+		}
+		public static void WriteNum(this BinaryWriter writer, uint num, int bits) {
 			uint c = 0b1;
 			for (int i = 0; i < bits; i++) {
 				writer.WriteBool((num & c) != 0);
 				c <<= 1;
 			}
 		}
-		public static void WriteNumber(this BinaryWriter writer, uint_b b) => writer.WriteNumber(b.value, b.Bits);
+		public static void WriteNum(this BinaryWriter writer, uint_b b) => writer.WriteNum(b.value, b.Bits);
 		public static string S(this BinaryWriter _) {
 			return $"value: ({value},  {value.ToBinaryString()}), bit: ({bit}, {bit.ToBinaryString()})";
 		}
@@ -148,7 +155,17 @@ namespace TerrariaPathFinderTesing.TileData.TA_TileData {
 
 			return result;
 		}
-		public static uint ReadNumber(this BinaryReader reader, int bits) {
+		public static uint ReadNum(this BinaryReader reader, int bits) {
+			uint result = 0;
+			uint c = 0b1;
+			for (int i = 0; i < bits; i++) {
+				if (reader.ReadBool())
+					result |= (c << i);
+			}
+
+			return result;
+		}
+		public static uint ReadNum(this BinaryReader reader, uint bits) {
 			uint result = 0;
 			uint c = 0b1;
 			for (int i = 0; i < bits; i++) {
@@ -162,14 +179,14 @@ namespace TerrariaPathFinderTesing.TileData.TA_TileData {
 			return $"value: ({value},  {value.ToBinaryString()}), bit: ({bit}, {bit.ToBinaryString()})";
 		}
 	}
-	public struct uint_b {
+	public struct uint_b : IComparable<uint_b> {
 		public const uint MaxValue = 134217728;//2^27
 		private const int significandBits = 27;
 		private const uint significandMask = 0b00000111111111111111111111111111;
 		private const uint bitsMask = 0b11111000000000000000000000000000;
 		public uint value;
-		public uint Bits => (value & bitsMask) >> significandBits;
-		public uint Significand => value & significandMask;
+		public int Bits => unchecked((int)((value & bitsMask) >> significandBits));
+		public int Significand => unchecked((int)(value & significandMask));
 		public uint_b(uint value, uint bits) {
 			this.value = (value & significandMask) | (bits << significandBits);
 		}
@@ -177,5 +194,14 @@ namespace TerrariaPathFinderTesing.TileData.TA_TileData {
 		public override string ToString() {
 			return $"value: {value}, Significand: {Significand}, Bits: {Bits}";
 		}
+
+		public int CompareTo(uint_b other) {
+			int diff = Bits - other.Bits;
+			if (diff != 0)
+				return diff;
+
+			return Significand - other.Significand;
+		}
+		public override int GetHashCode() => unchecked((int)value);
 	}
 }

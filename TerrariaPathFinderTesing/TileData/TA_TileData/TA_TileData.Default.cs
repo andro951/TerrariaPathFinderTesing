@@ -32,13 +32,5 @@ namespace TerrariaPathFinderTesing.TileData.TA_TileData {
 		public static void PipeType(this Tile tile, byte pipeType) => tile.Get<TilePipeData>().PipeType = pipeType;
 		public static byte PipeData(this Tile tile) => tile.Get<TilePipeData>().PipeData;
 		public static void PipeData(this Tile tile, byte pipeData) => tile.Get<TilePipeData>().PipeData = pipeData;
-		public static Tile GetTile(this uint tileId) {
-			Tile tile = new();
-			unsafe {
-				*(uint*)&tile = tileId;
-			}
-
-			return tile;
-		}
 	}
 }
