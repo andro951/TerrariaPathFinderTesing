@@ -15,7 +15,7 @@ namespace TerrariaPathFinderTesing.TileData {
 			[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
 			get {
 				if ((uint)x >= Width || (uint)y >= Height) {
-					throw new IndexOutOfRangeException();
+					throw new IndexOutOfRangeException($"{x}, {y} out of range");
 
 					// The informative version is unfortunately terrible for performance (makes worldgen take 2.15x longer)
 					// throw new IndexOutOfRangeException($"({x}, {y}). Map size ({Width}, {Height})");

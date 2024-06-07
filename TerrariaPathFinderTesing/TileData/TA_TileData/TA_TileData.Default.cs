@@ -14,15 +14,8 @@ namespace TerrariaPathFinderTesing.TileData.TA_TileData {
 		private static int hasPipeBit = 0;
 		private static int pipeTypeOffset = 1;
 		private static int pipeTypeLength = 7;
-
-		private static int realLength = 8;
 		public bool HasPipe { get => GetBit(pipeData, hasPipeBit); set => pipeData = (byte)SetBit(value, pipeData, hasPipeBit); }
-		public byte PipeType {
-			get => (byte)Unpack(pipeData, pipeTypeOffset, pipeTypeLength);
-			set {
-				pipeData = (byte)Pack(value, pipeData, pipeTypeOffset, pipeTypeLength);
-			}
-		}
+		public byte PipeType { get => (byte)Unpack(pipeData, pipeTypeOffset, pipeTypeLength); set => pipeData = (byte)Pack(value, pipeData, pipeTypeOffset, pipeTypeLength); }
 		public byte PipeData { get => pipeData; set => pipeData = value; }
 	}
 	public static class ES_TileDataStaticMethods {

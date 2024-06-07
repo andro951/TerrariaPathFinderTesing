@@ -21,6 +21,18 @@ class Program {
 		WorldIO_Testing.TileDataAccessTesting();
 
 		//TestReadWriteNumber();
+
+		//TestUShortOverflow();
+	}
+	private static void TestUShortOverflow() {
+		ushort id = 1;
+		for (int i = 0; i < 5; i++) {
+			for (ushort j = 0; j < ushort.MaxValue; j++) {
+				id = (ushort)(id % ushort.MaxValue + 1);
+				if (id == 0)
+					$"id: {id}, j: {j}".LogSimple();
+			}
+		}
 	}
 	private static void TestReadWriteNumber() {
 		TestWriter writer = new();
