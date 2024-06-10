@@ -239,15 +239,20 @@ namespace TerrariaPathFinderTesing.TileData.TA_TileData {
 		}
 		private static void Reset() {
 			value = 0;
-			shift = 0;
+			shift = -1;
 		}
-		public static void Start(this BinaryReader reader) {
-			Reset();
-			value = reader.ReadUInt32();
-			//$"{value.ToBinaryString()} Start Reader; value: {value} ({value.ToBinaryString().Substring(0, uintNum - shift)}), shift: {shift}, full value: {value.ToBinaryString()}".LogSimple();
-		}
+		//public static void Start(this BinaryReader reader) {
+		//	Reset();
+		//	value = reader.ReadUInt32();
+		//	//$"{value.ToBinaryString()} Start Reader; value: {value} ({value.ToBinaryString().Substring(0, uintNum - shift)}), shift: {shift}, full value: {value.ToBinaryString()}".LogSimple();
+		}//
 		public static bool ReadBool(this BinaryReader reader) => reader.ReadNum(1) == 1;
 		public static uint ReadNum(this BinaryReader reader, int length) {
+			if (shift == -1) {
+				shift = 0;
+				value = reader.ReadUInt32();
+			}
+			
 			//$"\n{value.ToBinaryString()} ReadNum(length: {length}); value: {value} ({value.ToBinaryString().Substring(0, uintNum - shift)}), shift: {shift}, full value: {value.ToBinaryString()}".LogSimple();
 			int originalShift = shift;
 			shift += length;
@@ -268,12 +273,14 @@ namespace TerrariaPathFinderTesing.TileData.TA_TileData {
 				else {
 					int leftShift = uintNum - shift;
 					result = (value << leftShift) >> leftShift + originalShift;
-					shift -= uintNum;
+					Reset();
+					//shift -= uintNum;
+					
 					//if (length == 3 && result > 4) {
 					//	$"{value.ToBinaryString()} result: {result} ({result.ToBinaryString()}), shift: {shift}, originalShift: {originalShift}".LogSimple();
 					//}
 
-					value = reader.ReadUInt32();
+					//value = reader.ReadUInt32();
 				}
 			}
 			else {
