@@ -14,15 +14,17 @@ class Program {
 	public static void Main(string[] args) {
 		//TerrariaPathFinderTesting.Test();
 
-		//LargeNumberTesting.Test();
+		LargeNumberTesting.Test();
 
 		//ByteLog2Testing();
 
-		WorldIO_Testing.TileDataAccessTesting();
+		//WorldIO_Testing.TileDataAccessTesting();
 
 		//TestReadWriteNumber();
 
 		//TestUShortOverflow();
+
+		//ElementsEnergyMath.Testing();
 	}
 	private static void TestUShortOverflow() {
 		ushort id = 1;

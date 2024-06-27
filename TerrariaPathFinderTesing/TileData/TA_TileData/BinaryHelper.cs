@@ -47,6 +47,8 @@ namespace TerrariaPathFinderTesing.TileData.TA_TileData {
 		internal static string ToBinaryString(this uint i, uint length) => i.ToBinaryString((int)length);
 		internal static string ToBinaryString(this byte b, int length = byteNum) => Convert.ToString(b, 2).PadLeft(length, '0');
 		internal static string ToBinaryString(this byte b, uint length) => b.ToBinaryString((int)length);
+		internal static string ToBinaryString(this ulong l, int length = ulongNum) => Convert.ToString((long)l, 2).PadLeft(length, '0');
+		internal static string ToBinaryString(this ulong l, uint length) => l.ToBinaryString((int)length);
 	}
 
 	internal class TestWriter {
@@ -245,7 +247,7 @@ namespace TerrariaPathFinderTesing.TileData.TA_TileData {
 		//	Reset();
 		//	value = reader.ReadUInt32();
 		//	//$"{value.ToBinaryString()} Start Reader; value: {value} ({value.ToBinaryString().Substring(0, uintNum - shift)}), shift: {shift}, full value: {value.ToBinaryString()}".LogSimple();
-		}//
+		//}
 		public static bool ReadBool(this BinaryReader reader) => reader.ReadNum(1) == 1;
 		public static uint ReadNum(this BinaryReader reader, int length) {
 			if (shift == -1) {

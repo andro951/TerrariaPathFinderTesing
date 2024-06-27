@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using TerrariaPathFinderTesing.TileData.TA_TileData;
 
 namespace TerrariaPathFinderTesting {
 	
-	public struct num {
+	public struct BigNumber {
 		private const long SquareRootOfLongMaxValue = 3037000499;//Square root of long.MaxValue rounded down.  Prevents overflow when multiplying two significands.
-		private long significand;//= 0;
+		private long significand;
 		public long Significand {
 			get => significand;
 			private set {
 				significand = value;
-				//CalculateSignificandExponent();
 				OnSetSignificand();
 			}
 		}
@@ -22,29 +23,60 @@ namespace TerrariaPathFinderTesting {
 		public readonly int SignificandExponent => significandExponent;
 		private int significandExponent = 0;
 		public readonly int CombinedExponent => exponent + significandExponent;
-		public num (long significand, int exponent) {
+		public BigNumber (long significand, int exponent) {
 			this.exponent = exponent;
-			this.Significand = significand;//If doesn't work, set significant to 0
+			this.Significand = significand;
 		}
-		//private num (long significand, int significandExponent, int exponent) {
-		//	this.significand = significand;
-		//	this.significandExponent = significandExponent;
-		//	this.exponent = exponent;
-		//}
-		public static num operator +(num left, num right) {
-			if (left.CombinedExponent != right.CombinedExponent) {
+		public BigNumber(float num) {
+			if (float.IsNaN(num) || float.IsInfinity(num) || num == 0f) {
+				this.exponent = 0;
+				Significand = 0;
+				return;
+			}
+
+			int sign = num < 0 ? -1 : 1;
+			int exponent = (int)MathF.Floor(MathF.Log10(MathF.Abs(num)));
+			float significand = num / MathF.Pow(10, exponent);
+			int bits = BitConverter.SingleToInt32Bits(significand);
+			long significandDivisor = 0b10000000_00000000_00000000;//2^23
+			
+			long realSignificand = (long)((bits & 0x7FFFFF) | 0x800000);
+
+			PadSignificand(ref realSignificand, ref exponent);
+			this.exponent = exponent;
+			Significand = realSignificand / significandDivisor * sign;
+		}
+		public BigNumber(double num) {
+			if (double.IsNaN(num) || double.IsInfinity(num) || num == 0d) {
+				this.exponent = 0;
+				Significand = 0;
+				return;
+			}
+
+			int sign = num < 0 ? -1 : 1;
+			int exponent = (int)Math.Floor(Math.Log10(Math.Abs(num)));
+			double significand = num / Math.Pow(10, exponent);
+			long significandDivisor = 0b10000_00000000_00000000_00000000_00000000_00000000_00000000;//2^53
+			long bits = BitConverter.DoubleToInt64Bits(significand);
+			long realSignificand = (bits & 0xFFFFFFFFFFFFF) | 0x10000000000000;
+			PadSignificand(ref realSignificand, ref exponent);
+			this.exponent = exponent;
+			Significand = realSignificand / significandDivisor * sign;
+		}
+		public static BigNumber operator +(BigNumber left, BigNumber right) {
+			if (left.exponent != right.exponent) {
 				if (left.CombinedExponent > right.CombinedExponent) {
-					right.SetExponent(left.CombinedExponent);
+					right.SetExponent(left.exponent);
 				}
 				else {
-					left.SetExponent(right.CombinedExponent);
+					left.SetExponent(right.exponent);
 				}
 			}
 
-			return new num(left.Significand + right.Significand, left.exponent);
+			return new BigNumber(left.Significand + right.Significand, left.exponent);
 		}
-		public static num operator -(num left, num right) => left + new num(-right.Significand, right.exponent);
-		public static num operator *(num left, num right) {
+		public static BigNumber operator -(BigNumber left, BigNumber right) => left + new BigNumber(-right.Significand, right.exponent);
+		public static BigNumber operator *(BigNumber left, BigNumber right) {
 			if (left.Significand > SquareRootOfLongMaxValue || right.Significand > SquareRootOfLongMaxValue) {
 				long max = long.MaxValue / left.Significand;
 				if (right.Significand > max) {
@@ -55,66 +87,63 @@ namespace TerrariaPathFinderTesting {
 
 			long mult = left.Significand * right.Significand;
 
-			return new num(mult, left.exponent + right.exponent);
+			return new BigNumber(mult, left.exponent + right.exponent);
 		}
-		public static num operator /(num left, num right) {
+		public static BigNumber operator /(BigNumber left, BigNumber right) {
 			left.PadSignificand();
 			long div = left.Significand / right.Significand;
 
-			return new num(div, left.exponent - right.exponent);
+			return new BigNumber(div, left.exponent - right.exponent);
 		}
-		private void PadSignificand() {
-			long div = long.MaxValue / Significand;
+		private static void PadSignificand(ref long significand, ref int exponent) {
+			long div = long.MaxValue / significand;
 			if (div < 10)
 				return;
-			
+
 			int exponentSpace = (int)Math.Log10(div);
 			if (exponentSpace <= 0)
 				return;
 
-			Significand *= (long)Math.Pow(10, exponentSpace);
+			significand *= (long)Math.Pow(10, exponentSpace);
 			exponent -= exponentSpace;
 		}
-		//Use carefully.  Accuracy will be lost by using this function.
-		//Designed to be used to raise an exponent of the lower value before addition/subtraction
+		private void PadSignificand() => PadSignificand(ref significand, ref exponent);
+
+		/// <summary>
+		/// Use carefully.  Accuracy will be lost by using this function.
+		/// Designed to be used to raise an exponent of the lower value before addition/subtraction
+		/// </summary>
 		private void SetExponent(int newExponent) {
-			int diff = newExponent - CombinedExponent;
+			int diff = newExponent - exponent;
 			if (diff == 0)
 				return;
 
 			if (diff > 0) {
 				long div = (long)Math.Pow(10, diff);
-				Significand /= div;
+				significand /= div;
 			}
 			else {
 				long mult = (long)Math.Pow(10, -diff);
-				Significand *= mult;
+				significand *= mult;
 			}
 
-			exponent = newExponent - significandExponent;
+			exponent = newExponent;
 		}
 		private void OnSetSignificand() {
-			if (!NormalizeSignificand())
-				CalculateSignificandExponent();
+			NormalizeSignificand();
+			CalculateSignificandExponent();
 		}
 		private static int CalculateSignificandExponent(long significand) => significand != 0 ? (int)Math.Floor(Math.Log10(Math.Abs(significand))) : 0;
 		private void CalculateSignificandExponent() {
 			significandExponent = CalculateSignificandExponent(Significand);
 		}
-		private bool NormalizeSignificand() {
-			bool changed = false;
+		private void NormalizeSignificand() {
 			while (Significand > 0 && Significand % 10 == 0) {
 				significand /= 10;
 				exponent++;
-				changed = true;
 			}
-
-			if (changed)
-				CalculateSignificandExponent();
-
-			return changed;
 		}
-		private static void Reduce(ref num left, ref num right, int exp) {//TODO: Check what happens when exp is negative
+		private static void Reduce(ref BigNumber left, ref BigNumber right, int exp) {//TODO: Check what happens when exp is negative
 			int leftRed;
 			int rightRed;
 			//long expAbs = Math.Abs(exp);

@@ -1027,7 +1027,6 @@ namespace TerrariaPathFinderTesing {
 					//$"pipeIds[{i} ({i.ToBinaryString(numBitsNeededForPipeId)})]: {pipeId2} ({pipeId2.ToBinaryString()})".LogSimple();
 				}
 
-				reader.Start();
 				byte pipeData = 0;
 				uint tileCount = 0;
 				uint pipeId = 0;
@@ -1049,7 +1048,6 @@ namespace TerrariaPathFinderTesing {
 				}
 			}
 			else {
-				reader.Start();
 				byte pipeData = 0;
 				uint tileCount = 0;
 				for (uint x = 0; x < maxTilesX; x++) {

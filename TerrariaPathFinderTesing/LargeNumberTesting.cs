@@ -22,12 +22,95 @@ namespace TerrariaPathFinderTesting {
 			long test = (SquareRootOfLong + 1) * (SquareRootOfLong + 1);
 			$"test: {test}".LogSimple();
 
-			num left = new(684127, 100);
-			num right = new(25, 1);
-			num mult = left * right;
-			$"left: {left}, right: {right}, mult: {mult}".LogSimple();
-			num add = left + right;
-			$"left: {left}, right: {right}, add: {add}".LogSimple();
+			//BigNumber left = new(684127, 100);
+			//BigNumber right = new(25, 1);
+			//BigNumber mult = left * right;
+			//$"left: {left}, right: {right}, mult: {mult}".LogSimple();
+			//BigNumber add = left + right;
+			//$"left: {left}, right: {right}, add: {add}".LogSimple();
+
+			//BigNumber divide = left / right;
+			//$"left: {left}, right: {right}, divide: {divide}".LogSimple();
+			//BigNumber subtract = left - right;
+			//$"left: {left}, right: {right}, subtract: {subtract}".LogSimple();
+
+			//BigNumber divide2 = right / left;
+			//$"left: {right}, right: {left}, divide2: {divide2}".LogSimple();
+			//BigNumber subtract2 = right - left;
+			//$"left: {right}, right: {left}, subtract2: {subtract2}".LogSimple();
+
+			BigNumber left2 = new(684127, 100);
+			BigNumber right2 = new(25, 103);
+
+			BigNumber mult2 = left2 * right2;
+			$"left2: {left2}, right2: {right2}, mult2: {mult2}".LogSimple();
+			BigNumber add2 = left2 + right2;
+			$"left2: {left2}, right2: {right2}, add2: {add2}".LogSimple();
+			BigNumber div2 = left2 / right2;
+			$"left2: {left2}, right2: {right2}, div2: {div2}".LogSimple();
+			BigNumber sub2 = left2 - right2;
+			$"left2: {left2}, right2: {right2}, sub2: {sub2}".LogSimple();
+
+			BigNumber mul3 = right2 * left2;
+			$"left2: {right2}, right2: {left2}, mul3: {mul3}".LogSimple();
+			BigNumber add3 = right2 + left2;
+			$"left2: {right2}, right2: {left2}, add3: {add3}".LogSimple();
+			BigNumber div3 = right2 / left2;
+			$"left2: {right2}, right2: {left2}, div3: {div3}".LogSimple();
+			BigNumber sub3 = right2 - left2;
+			$"left2: {right2}, right2: {left2}, sub3: {sub3}".LogSimple();
+
+			BigNumber left3 = new(-153231, -2);
+			BigNumber right3 = new(2648, 0);
+
+			BigNumber mult4 = left3 * right3;
+			$"left3: {left3}, right3: {right3}, mult4: {mult4}".LogSimple();
+			BigNumber add4 = left3 + right3;
+			$"left3: {left3}, right3: {right3}, add4: {add4}".LogSimple();
+			BigNumber div4 = left3 / right3;
+			$"left3: {left3}, right3: {right3}, div4: {div4}".LogSimple();
+			BigNumber sub4 = left3 - right3;
+			$"left3: {left3}, right3: {right3}, sub4: {sub4}".LogSimple();
+			BigNumber mul5 = right3 * left3;
+			$"left3: {right3}, right3: {left3}, mul5: {mul5}".LogSimple();
+			BigNumber add5 = right3 + left3;
+			$"left3: {right3}, right3: {left3}, add5: {add5}".LogSimple();
+			BigNumber div5 = right3 / left3;
+			$"left3: {right3}, right3: {left3}, div5: {div5}".LogSimple();
+			BigNumber sub5 = right3 - left3;
+			$"left3: {right3}, right3: {left3}, sub5: {sub5}".LogSimple();
+
+			int testInt = -3;
+			int testInt2 = testInt >> 1;
+			$"testInd: {testInt} ({Convert.ToString(testInt, 2)}), testInt >> 1 = {testInt2} ({Convert.ToString(testInt2, 2)})".LogSimple();
+
+			float f3 = 11f;
+			BigNumber floatNumber3 = new(f3);
+			$"floatNumber3: {f3} => {floatNumber3}".LogSimple();
+
+			float f4 = 12f;
+			BigNumber floatNumber4 = new(f4);
+			$"floatNumber4: {f4} => {floatNumber4}".LogSimple();
+
+			float f = -1532.31f;
+			BigNumber floatNumber = new(f);
+			$"floatNumber: {f} => {floatNumber}".LogSimple();
+
+			float f2 = 161345683213540000000000000000000000f;
+			BigNumber floatNumber2 = new(f2);
+			$"floatNumber2: {f2} => {floatNumber2}".LogSimple();
+
+			double d = -1532.31;
+			BigNumber doubleNumber = new(d);
+			$"doubleNumber: {d} => {doubleNumber}".LogSimple();
+
+			double d2 = 161345683213540000000000000000000000.0;
+			BigNumber bigNumber2 = new(d2);
+			$"bigNumber2: {d2} => {bigNumber2}".LogSimple();
+
+			double d3 = 16134568321354e290;
+			BigNumber bigNumber3 = new(d3);
+			$"bigNumber3: {d3} => {bigNumber3}".LogSimple();
 
 			Test_CalculateSignificandExponent();
 		}
@@ -95,7 +178,7 @@ namespace TerrariaPathFinderTesting {
 		public static void Test_CalculateSignificandExponent() {
 			$"Test_CalculateSignificandExponent".LogSimple();
 			foreach (TestData_CalculateSignificandExponent testData in testData_CalculateSignificandExponents) {
-				num testNum = new(testData.Significand, testData.Exponent);
+				BigNumber testNum = new(testData.Significand, testData.Exponent);
 
 				if (logAllInfo_CalculateSignificandExponent)
 					$"testNum.Significand: {testNum.Significand}, testData.Significand: {testData.Significand}, testNum: {testNum}".LogSimple();
