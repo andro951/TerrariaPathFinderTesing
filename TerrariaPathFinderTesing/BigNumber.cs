@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using TerrariaPathFinderTesing.TileData.TA_TileData;
 
 namespace TerrariaPathFinderTesting {
-	
+
 	public struct BigNumber {
 		private const long SquareRootOfLongMaxValue = 3037000499;//Square root of long.MaxValue rounded down.  Prevents overflow when multiplying two significands.
 		private long significand;
@@ -21,13 +21,17 @@ namespace TerrariaPathFinderTesting {
 		public readonly int Exponent => exponent;
 		private int exponent;
 		public readonly int SignificandExponent => significandExponent;
-		private int significandExponent = 0;
+		private int significandExponent;
 		public readonly int CombinedExponent => exponent + significandExponent;
-		public BigNumber (long significand, int exponent) {
+		public BigNumber(long significand, int exponent) {
 			this.exponent = exponent;
+			significandExponent = 0;
+			this.significand = 0;
 			this.Significand = significand;
 		}
-		public BigNumber(float num) {
+		public BigNumber(float num, int exponenet = 0) {
+			significandExponent = 0;
+			this.significand = 0;
 			if (float.IsNaN(num) || float.IsInfinity(num) || num == 0f) {
 				this.exponent = 0;
 				Significand = 0;
@@ -35,18 +39,21 @@ namespace TerrariaPathFinderTesting {
 			}
 
 			int sign = num < 0 ? -1 : 1;
-			int exponent = (int)MathF.Floor(MathF.Log10(MathF.Abs(num)));
-			float significand = num / MathF.Pow(10, exponent);
+			int exp = (int)MathF.Floor(MathF.Log10(MathF.Abs(num)));
+			float significand = num / MathF.Pow(10, exp);
 			int bits = BitConverter.SingleToInt32Bits(significand);
-			long significandDivisor = 0b10000000_00000000_00000000;//2^23
-			
+			int binaryExp = ((bits >> 23) & 0xFF) - 127;
+			long significandDivisor = 0b10000000_00000000_00000000 >> binaryExp;//2^23
+
 			long realSignificand = (long)((bits & 0x7FFFFF) | 0x800000);
 
-			PadSignificand(ref realSignificand, ref exponent);
-			this.exponent = exponent;
+			PadSignificand(ref realSignificand, ref exp);
+			this.exponent = exp + exponenet;
 			Significand = realSignificand / significandDivisor * sign;
 		}
-		public BigNumber(double num) {
+		public BigNumber(double num, int exponent = 0) {
+			significandExponent = 0;
+			this.significand = 0;
 			if (double.IsNaN(num) || double.IsInfinity(num) || num == 0d) {
 				this.exponent = 0;
 				Significand = 0;
@@ -54,33 +61,50 @@ namespace TerrariaPathFinderTesting {
 			}
 
 			int sign = num < 0 ? -1 : 1;
-			int exponent = (int)Math.Floor(Math.Log10(Math.Abs(num)));
-			double significand = num / Math.Pow(10, exponent);
+			int exp = (int)Math.Floor(Math.Log10(Math.Abs(num)));
+			double significand = num / Math.Pow(10, exp);
 			long significandDivisor = 0b10000_00000000_00000000_00000000_00000000_00000000_00000000;//2^53
 			long bits = BitConverter.DoubleToInt64Bits(significand);
 			long realSignificand = (bits & 0xFFFFFFFFFFFFF) | 0x10000000000000;
-			PadSignificand(ref realSignificand, ref exponent);
-			this.exponent = exponent;
+			PadSignificand(ref realSignificand, ref exp);
+			this.exponent = exp + exponent;
 			Significand = realSignificand / significandDivisor * sign;
+		}
+		public BigNumber(int num, int exponent = 0) {
+			significandExponent = 0;
+			this.significand = 0;
+			this.exponent = exponent;
+			Significand = num;
+		}
+		public BigNumber(uint num, int exponent = 0) {
+			significandExponent = 0;
+			this.significand = 0;
+			this.exponent = exponent;
+			Significand = num;
 		}
 		public static BigNumber operator +(BigNumber left, BigNumber right) {
 			if (left.exponent != right.exponent) {
 				if (left.CombinedExponent > right.CombinedExponent) {
+					left.PadSignificand(true);
 					right.SetExponent(left.exponent);
 				}
 				else {
+					right.PadSignificand(true);
 					left.SetExponent(right.exponent);
 				}
 			}
 
 			return new BigNumber(left.Significand + right.Significand, left.exponent);
 		}
-		public static BigNumber operator -(BigNumber left, BigNumber right) => left + new BigNumber(-right.Significand, right.exponent);
+		public static BigNumber operator -(BigNumber left, BigNumber right) => left + -right;
 		public static BigNumber operator *(BigNumber left, BigNumber right) {
-			if (left.Significand > SquareRootOfLongMaxValue || right.Significand > SquareRootOfLongMaxValue) {
-				long max = long.MaxValue / left.Significand;
-				if (right.Significand > max) {
-					int exp = (int)right.Significand.CeilingDivide(max);
+			long leftAbsSig = Math.Abs(left.Significand);
+			long rightAbsSig = Math.Abs(right.Significand);
+			if (leftAbsSig > 0 && rightAbsSig > 0 && (leftAbsSig > SquareRootOfLongMaxValue || rightAbsSig > SquareRootOfLongMaxValue)) {
+				long max = long.MaxValue / leftAbsSig;
+				if (rightAbsSig > max) {
+					long div = rightAbsSig.CeilingDivide(max);
+					int exp = div.CeilingLog10();
 					Reduce(ref left, ref right, exp);
 				}
 			}
@@ -95,8 +119,16 @@ namespace TerrariaPathFinderTesting {
 
 			return new BigNumber(div, left.exponent - right.exponent);
 		}
-		private static void PadSignificand(ref long significand, ref int exponent) {
+		public static BigNumber operator -(BigNumber num) => new BigNumber(-num.Significand, num.exponent);
+		public static BigNumber operator *(BigNumber left, float right) => left * new BigNumber(right);
+		public static BigNumber operator *(BigNumber left, double right) => left * new BigNumber(right);
+		public static BigNumber operator /(BigNumber left, float right) => left / new BigNumber(right);
+		public static BigNumber operator /(BigNumber left, double right) => left / new BigNumber(right);
+		private static void PadSignificand(ref long significand, ref int exponent, bool div2 = false) {
 			long div = long.MaxValue / significand;
+			if (div2)
+				div /= 2;
+
 			if (div < 10)
 				return;
 
@@ -107,7 +139,7 @@ namespace TerrariaPathFinderTesting {
 			significand *= (long)Math.Pow(10, exponentSpace);
 			exponent -= exponentSpace;
 		}
-		private void PadSignificand() => PadSignificand(ref significand, ref exponent);
+		private void PadSignificand(bool div2 = false) => PadSignificand(ref significand, ref exponent, div2);
 
 		/// <summary>
 		/// Use carefully.  Accuracy will be lost by using this function.
@@ -119,12 +151,12 @@ namespace TerrariaPathFinderTesting {
 				return;
 
 			if (diff > 0) {
-				long div = (long)Math.Pow(10, diff);
-				significand /= div;
+				long mult = (long)Math.Pow(10, diff);
+				significand /= mult;
 			}
 			else {
-				long mult = (long)Math.Pow(10, -diff);
-				significand *= mult;
+				long div = (long)Math.Pow(10, -diff);
+				significand *= div;
 			}
 
 			exponent = newExponent;
@@ -138,12 +170,20 @@ namespace TerrariaPathFinderTesting {
 			significandExponent = CalculateSignificandExponent(Significand);
 		}
 		private void NormalizeSignificand() {
+			if (Significand == 0) {
+				exponent = 0;
+				return;
+			}
+
 			while (Significand > 0 && Significand % 10 == 0) {
 				significand /= 10;
 				exponent++;
 			}
 		}
-		private static void Reduce(ref BigNumber left, ref BigNumber right, int exp) {//TODO: Check what happens when exp is negative
+		private static void Reduce(ref BigNumber left, ref BigNumber right, int exp) {
+			if (exp < 0)
+				throw new Exception($"Exponenet less than zero in Reduce(), left: {left}, right: {right}, exp: {exp}");
+
 			int leftRed;
 			int rightRed;
 			//long expAbs = Math.Abs(exp);
@@ -170,6 +210,7 @@ namespace TerrariaPathFinderTesting {
 				right.exponent += rightRed;
 			}
 		}
+		public bool None => Significand <= 0;
 
 		public override string ToString() => S(2);
 
@@ -239,48 +280,6 @@ namespace TerrariaPathFinderTesting {
 			if (s.Length > frontLen + decimals)
 				s = s.Substring(0, frontLen + decimals);
 
-			//int frontZeros = 0;
-			//if (!scientific && exp < 0) {
-			//	if (-exp <= decimals) {
-			//		frontZeros = -exp;
-			//		//s = string.Concat(Enumerable.Repeat("0", -exp)) + s;
-			//	}
-			//}
-
-			////Try round to decimal place
-			//if (s.Length + frontZeros > frontLen + decimals) {
-			//	int endIndex = frontLen + decimals - frontZeros;
-			//	char end = s[endIndex];
-			//	//Needs to round up
-			//	if (end >= '5' && end <= '9') {
-			//		s = IncChar(s, endIndex - 1, true);
-
-			//		int firstNumIndex = frontLen - 1;
-			//		for (int i = endIndex - 1; i >= firstNumIndex; i--) {
-			//			char c = s[i];
-			//			if (c != after9)
-			//				break;
-
-			//			s = SetChar(s, i, '0');
-			//			if (i == firstNumIndex) {
-			//				string f = s.Substring(0, i);
-			//				string m = "1";
-			//				string e = s.Substring(i);
-			//				string temp = f + m + e;
-			//				s = $"{s.Substring(0, i)}1{s.Substring(i)}";
-			//				exp++;
-			//			}
-			//			else {
-			//				s = IncChar(s, i - 1);
-			//			}
-			//		}
-			//	}
-
-			//	//Truncate extra
-			//	if (s.Length > frontLen + decimals)
-			//		s = s.Substring(0, frontLen + decimals);
-			//}
-
 			//Add 0s to end if less significant digits than needed.
 			if (s.Length < frontLen + decimals)
 				s = s + string.Concat(Enumerable.Repeat("0", frontLen + decimals - s.Length));
@@ -288,8 +287,8 @@ namespace TerrariaPathFinderTesting {
 			if (scientific || exp >= 36 || exp < -decimals) {
 				//Scientific
 				string front = s.Substring(0, frontLen);// char n = s.Length > 0 ? s[0] : '0';
-				//int dLength = Math.Min(s.Length - frontLen, decimals);
-				//string d = s.Substring(frontLen, dLength) + string.Concat(Enumerable.Repeat("0", decimals - dLength));
+														//int dLength = Math.Min(s.Length - frontLen, decimals);
+														//string d = s.Substring(frontLen, dLength) + string.Concat(Enumerable.Repeat("0", decimals - dLength));
 				string d = s.Substring(frontLen);
 				return $"{front}.{d}e{exp}";
 			}
@@ -357,13 +356,15 @@ namespace TerrariaPathFinderTesting {
 		}
 		public static string IncChar(string s, int index, bool trunc = false) => $"{s.Substring(0, index)}{(char)(s[index] + 1)}{(trunc ? "" : s.Substring(index + 1))}";
 		public static string SetChar(string s, int index, char c) => $"{s.Substring(0, index)}{c}{s.Substring(index + 1)}";
-		//public static string IncChar(string s, int index, bool trunc = false) {
-		//	string front = s.Substring(0, index);
-		//	string middle = $"{(char)(s[index] + 1)}";
-		//	string end = trunc ? "" : s.Substring(index + 1);
 
-		//	return front + middle + end;
-		//}
+		internal void Write(BinaryWriter writer) {
+			writer.Write(Significand);
+			writer.Write(Exponent);
+		}
+
+		internal static BigNumber Read(BinaryReader reader) {
+			return new BigNumber(reader.ReadInt64(), reader.ReadInt32());
+		}
 	}
 
 	public static class MathLib {

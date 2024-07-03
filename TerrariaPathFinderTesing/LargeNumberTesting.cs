@@ -112,6 +112,99 @@ namespace TerrariaPathFinderTesting {
 			BigNumber bigNumber3 = new(d3);
 			$"bigNumber3: {d3} => {bigNumber3}".LogSimple();
 
+			BigNumber j1 = new(-1532.31f);
+			BigNumber k1 = new(1.9f);
+			BigNumber j1M = j1 * k1;
+			$"j1M = {j1} * {k1}: {j1M}".LogSimple();
+
+			BigNumber j2 = new(-1532.31f);
+			BigNumber k2 = new(2f);
+			BigNumber j2M = j2 * k2;
+			$"j2M = {j2} * {k2}: {j2M}".LogSimple();
+
+			BigNumber j3 = new(-1532.31f);
+			BigNumber k3 = new(4f);
+			BigNumber j3M = j3 * k3;
+			$"j3M = {j3} * {k3}: {j3M}".LogSimple();
+
+			BigNumber j4 = new(-1532.31f);
+			BigNumber k4 = new(8f);
+			BigNumber j4M = j4 * k4;
+			$"j4M = {j4} * {k4}: {j4M}".LogSimple();
+
+			BigNumber j5 = new(-1532.31f);
+			BigNumber k5 = new(16f);
+			BigNumber j5M = j5 * k5;
+			$"j5M = {j5} * {k5}: {j5M}".LogSimple();
+
+			BigNumber j6 = new(-1532.31f);
+			BigNumber k6 = new(32f);
+			BigNumber j6M = j6 * k6;
+			$"j6M = {j6} * {k6}: {j6M}".LogSimple();
+
+			BigNumber j7 = new(-1532.31f);
+			BigNumber k7 = new(64f);
+			BigNumber j7M = j7 * k7;
+			$"j7M = {j7} * {k7}: {j7M}".LogSimple();
+
+			BigNumber j8 = new(-1532.31f);
+			BigNumber k8 = new(-2f);
+			BigNumber j8M = j8 * k8;
+			$"j8M = {j8} * {k8}: {j8M}".LogSimple();
+
+			BigNumber j9 = new(-1532.31f);
+			BigNumber k9 = new(-4f);
+			BigNumber j9M = j9 * k9;
+			$"j9M = {j9} * {k9}: {j9M}".LogSimple();
+
+			BigNumber j10 = new(-1532.31f);
+			BigNumber k10 = new(-8f);
+			BigNumber j10M = j10 * k10;
+			$"j10M = {j10} * {k10}: {j10M}".LogSimple();
+
+			BigNumber j11 = new(-1532.31f);
+			BigNumber k11 = new(-16f);
+			BigNumber j11M = j11 * k11;
+			$"j11M = {j11} * {k11}: {j11M}".LogSimple();
+
+			BigNumber j12 = new(-1532.31f);
+			BigNumber k12 = new(-32f);
+			BigNumber j12M = j12 * k12;
+			$"j12M = {j12} * {k12}: {j12M}".LogSimple();
+
+			BigNumber j13 = new(-1532.31f);
+			BigNumber k13 = new(-64f);
+			BigNumber j13M = j13 * k13;
+			$"j13M = {j13} * {k13}: {j13M}".LogSimple();
+
+			BigNumber j14 = new(-1532.31f);
+			BigNumber k14 = new(1f);
+			BigNumber j14M = j14 * k14;
+			$"j14M = {j14} * {k14}: {j14M}".LogSimple();
+
+			BigNumber j15 = new(-1532.31f);
+			BigNumber k15 = new(-1f);
+			BigNumber j15M = j15 * k15;
+			$"j15M = {j15} * {k15}: {j15M}".LogSimple();
+
+			BigNumber j16 = new(-1532.31f);
+			BigNumber k16 = new(0f);
+			BigNumber j16M = j16 * k16;
+			$"j16M = {j16} * {k16}: {j16M}".LogSimple();
+
+			BigNumber t1 = new(-1532.31f);
+			BigNumber t1M = t1 * 2f;
+			$"t1M = {t1} * 2f: {t1M}".LogSimple();
+
+			t1 *= 2f;
+			$"t1 *= 2f: {t1}".LogSimple();
+
+			BigNumber a1 = new(10);
+			BigNumber a2 = new(1);
+
+			BigNumber a3 = a1 - a2;
+			$"a3 = {a1} - {a2}: {a3}".LogSimple();
+
 			Test_CalculateSignificandExponent();
 		}
 
