@@ -27,9 +27,12 @@ namespace TerrariaPathFinderTesting {
 			this.exponent = exponent;
 			significandExponent = 0;
 			this.significand = 0;
-			this.Significand = significand;
+			Significand = significand;
+
+			if (Significand < 0 && significand > 0)
+				throw new Exception("Significand overflow");
 		}
-		public BigNumber(float num, int exponenet = 0) {
+		public BigNumber(float num, int exponent = 0) {
 			significandExponent = 0;
 			this.significand = 0;
 			if (float.IsNaN(num) || float.IsInfinity(num) || num == 0f) {
@@ -43,12 +46,12 @@ namespace TerrariaPathFinderTesting {
 			float significand = num / MathF.Pow(10, exp);
 			int bits = BitConverter.SingleToInt32Bits(significand);
 			int binaryExp = ((bits >> 23) & 0xFF) - 127;
-			long significandDivisor = 0b10000000_00000000_00000000 >> binaryExp;//2^23
+			long significandDivisor = 0b10000000_00000000_00000000 >> binaryExp;//2^24
 
 			long realSignificand = (long)((bits & 0x7FFFFF) | 0x800000);
 
 			PadSignificand(ref realSignificand, ref exp);
-			this.exponent = exp + exponenet;
+			this.exponent = exp + exponent;
 			Significand = realSignificand / significandDivisor * sign;
 		}
 		public BigNumber(double num, int exponent = 0) {
@@ -63,8 +66,9 @@ namespace TerrariaPathFinderTesting {
 			int sign = num < 0 ? -1 : 1;
 			int exp = (int)Math.Floor(Math.Log10(Math.Abs(num)));
 			double significand = num / Math.Pow(10, exp);
-			long significandDivisor = 0b10000_00000000_00000000_00000000_00000000_00000000_00000000;//2^53
 			long bits = BitConverter.DoubleToInt64Bits(significand);
+			int binaryExp = (int)((bits >> 52) & 0x7FF) - 1023;
+			long significandDivisor = 0b10000_00000000_00000000_00000000_00000000_00000000_00000000 >> binaryExp;//2^53
 			long realSignificand = (bits & 0xFFFFFFFFFFFFF) | 0x10000000000000;
 			PadSignificand(ref realSignificand, ref exp);
 			this.exponent = exp + exponent;
@@ -83,18 +87,130 @@ namespace TerrariaPathFinderTesting {
 			Significand = num;
 		}
 		public static BigNumber operator +(BigNumber left, BigNumber right) {
+			if (left.IsZero) {
+				return right;
+			}
+			else if (right.IsZero) {
+				return left;
+			}
+
+			bool leftSign = !left.IsNegative;
+			bool rightSign = !right.IsNegative;
 			if (left.exponent != right.exponent) {
-				if (left.CombinedExponent > right.CombinedExponent) {
+				if (right < left) {
 					left.PadSignificand(true);
 					right.SetExponent(left.exponent);
+					bool leftSign2 = !left.IsNegative;
+					bool rightSign2 = !right.IsNegative;
+					if (leftSign && leftSign != leftSign2 || rightSign && rightSign != rightSign2) {
+						$"Sign changed 1".Log();
+					}
 				}
 				else {
 					right.PadSignificand(true);
 					left.SetExponent(right.exponent);
+					bool leftSign2 = !left.IsNegative;
+					bool rightSign2 = !right.IsNegative;
+					if (leftSign && leftSign != leftSign2 || rightSign && rightSign != rightSign2) {
+						$"Sign changed 2".Log();
+					}
 				}
 			}
 
-			return new BigNumber(left.Significand + right.Significand, left.exponent);
+			////Testing
+			//long max = long.MaxValue - left.Significand;
+			//if (right.Significand > max)
+			//	$"BigNumber Addition Error; left: {left} ({left.Significand}), right: {right} ({right.Significand})".Log();
+			////Testing
+
+			if (left.IsPositive) {
+				//Both positive
+				if (right.IsPositive) {
+					long max = long.MaxValue - left.Significand;
+					if (right.Significand > max) {
+						left.SetExponent(left.exponent + 1);
+						right.SetExponent(right.exponent + 1);
+						bool leftSign2 = !left.IsNegative;
+						bool rightSign2 = !right.IsNegative;
+						if (leftSign && leftSign != leftSign2 || rightSign && rightSign != rightSign2) {
+							$"Sign changed 3".Log();
+						}
+					}
+				}
+			}
+			else if (right.IsNegative) {
+				//Both negative
+				long min = long.MinValue - left.Significand;
+				if (right.Significand < min) {
+					left.SetExponent(left.exponent + 1);
+					right.SetExponent(right.exponent + 1);
+					bool leftSign2 = !left.IsNegative;
+					bool rightSign2 = !right.IsNegative;
+					if (leftSign && leftSign != leftSign2 || rightSign && rightSign != rightSign2) {
+						$"Sign changed 4".Log();
+					}
+				}
+			}
+
+			long newSignificand = left.Significand + right.Significand;
+			bool error;
+			if (left.exponent != right.exponent) {
+				error = true;
+			}
+			else {
+				if (newSignificand > 0) {
+					if (left.IsPositive) {
+						if (right.IsPositive) {
+							error = false;
+						}
+						else {
+							error = -right.Significand > left.Significand;
+						}
+					}
+					else {
+						if (right.IsPositive) {
+							error = -left.Significand > right.Significand;
+						}
+						else {
+							error = true;
+						}
+					}
+				}
+				else if (newSignificand < 0) {
+					if (left.IsNegative) {
+						if (right.IsNegative) {
+							error = false;
+						}
+						else {
+							error = -left.Significand < right.Significand;
+						}
+					}
+					else {
+						if (right.IsNegative) {
+							error = -right.Significand < left.Significand;
+						}
+						else {
+							error = true;
+						}
+					}
+				}
+				else {
+					if (left.IsZero) {
+						error = !right.IsZero;
+					}
+					else if (right.IsZero) {
+						error = !left.IsZero;
+					}
+					else {
+						error = left.Significand != -right.Significand;
+					}
+				}
+			}
+
+			if (error)
+				$"BigNumber Addition Error; left: {left} ({left.Significand}, {left.exponent}), right: {right} ({right.Significand}, {right.exponent}), newSignificand: {newSignificand}".Log();
+
+			return new BigNumber(newSignificand, left.exponent);
 		}
 		public static BigNumber operator -(BigNumber left, BigNumber right) => left + -right;
 		public static BigNumber operator *(BigNumber left, BigNumber right) {
@@ -110,20 +226,120 @@ namespace TerrariaPathFinderTesting {
 			}
 
 			long mult = left.Significand * right.Significand;
+			bool error;
+			if (mult > 0) {
+				error = left.IsPositive ? right.IsNegative : right.IsPositive;
+			}
+			else if (mult < 0) {
+				error = left.IsNegative ? right.IsNegative : right.IsPositive;
+			}
+			else {
+				error = !left.IsZero && !right.IsZero;
+			}
+
+			if (error)
+				$"BigNumber Multiplication Error; left: {left} ({left.Significand}, {left.exponent}), right: {right} ({right.Significand}, {right.exponent}), newSignificand: {mult}".Log();
 
 			return new BigNumber(mult, left.exponent + right.exponent);
 		}
 		public static BigNumber operator /(BigNumber left, BigNumber right) {
-			left.PadSignificand();
+			if (!left.IsZero)
+				left.PadSignificand();
+
 			long div = left.Significand / right.Significand;
 
 			return new BigNumber(div, left.exponent - right.exponent);
 		}
 		public static BigNumber operator -(BigNumber num) => new BigNumber(-num.Significand, num.exponent);
-		public static BigNumber operator *(BigNumber left, float right) => left * new BigNumber(right);
-		public static BigNumber operator *(BigNumber left, double right) => left * new BigNumber(right);
-		public static BigNumber operator /(BigNumber left, float right) => left / new BigNumber(right);
-		public static BigNumber operator /(BigNumber left, double right) => left / new BigNumber(right);
+		public static bool operator <(BigNumber left, BigNumber right) {
+			if (!left.IsPositive) {
+				//left is negative or zero
+				if (right.IsPositive)
+					return true;
+
+				//right is negative or zero
+
+				if (left.IsZero)
+					return right.IsNegative;
+
+				//left is negative
+
+				if (right.IsZero)
+					return true;
+
+				//right is negative
+
+				if (left.CombinedExponent > right.CombinedExponent)
+					return true;
+			}
+			else {
+				//left is positive
+
+				if (!right.IsPositive)
+					return false;
+
+				//right is positive
+
+				if (left.CombinedExponent < right.CombinedExponent)
+					return true;
+			}
+
+			//left and right signs match and are not zero
+			//Need to make sure they are the same exponent so the significands can be compared
+			if (left.exponent != right.exponent) {
+				if (left.CombinedExponent > right.CombinedExponent) {
+					left.PadSignificand();
+					right.SetExponent(left.exponent);
+				}
+				else if (left.CombinedExponent < right.CombinedExponent) {
+					right.PadSignificand();
+					left.SetExponent(right.exponent);
+				}
+				else {
+					left.PadSignificand();
+					right.PadSignificand();
+					if (left.exponent != right.exponent) {
+						if (left.exponent > right.exponent) {
+							right.SetExponent(left.exponent);
+						}
+						else {
+							left.SetExponent(right.exponent);
+						}
+					}
+				}
+			}
+
+			return left.Significand < right.Significand;
+		}
+		public static bool operator >(BigNumber left, BigNumber right) => !(left <= right);
+		public static bool operator <=(BigNumber left, BigNumber right) => left == right || left < right;
+		public static bool operator >=(BigNumber left, BigNumber right) => !(left < right);
+		public static bool operator ==(BigNumber left, BigNumber right) => left.exponent == right.exponent && left.Significand == right.Significand;
+		public static bool operator !=(BigNumber left, BigNumber right) => !(left == right);
+		//public static BigNumber operator *(BigNumber left, float right) => left * new BigNumber(right);
+		//public static BigNumber operator *(BigNumber left, double right) => left * new BigNumber(right);
+		//public static BigNumber operator *(BigNumber left, int right) => left * new BigNumber(right);
+		//public static BigNumber operator *(BigNumber left, long right) => left * new BigNumber(right);
+		//public static BigNumber operator /(BigNumber left, float right) => left / new BigNumber(right);
+		//public static BigNumber operator /(BigNumber left, double right) => left / new BigNumber(right);
+		//public static BigNumber operator /(BigNumber left, int right) => left / new BigNumber(right);
+		//public static BigNumber operator /(BigNumber left, long right) => left / new BigNumber(right);
+		//public static BigNumber operator +(BigNumber left, float right) => left + new BigNumber(right);
+		//public static BigNumber operator +(BigNumber left, double right) => left + new BigNumber(right);
+		//public static BigNumber operator +(BigNumber left, int right) => left + new BigNumber(right);
+		//public static BigNumber operator +(BigNumber left, long right) => left + new BigNumber(right);
+		//public static BigNumber operator -(BigNumber left, float right) => left - new BigNumber(right);
+		//public static BigNumber operator -(BigNumber left, double right) => left - new BigNumber(right);
+		//public static BigNumber operator -(BigNumber left, int right) => left - new BigNumber(right);
+		//public static BigNumber operator -(BigNumber left, long right) => left - new BigNumber(right);
+		public static implicit operator BigNumber(float num) => new BigNumber(num);
+		public static implicit operator BigNumber(double num) => new BigNumber(num);
+		public static implicit operator BigNumber(int num) => new BigNumber(num);
+		public static implicit operator BigNumber(uint num) => new BigNumber(num);
+		public static double ToDouble(BigNumber num) => Math.Pow(10.0d, (double)num.exponent) * (double)num.significand;
+		public static float ToFloat(BigNumber num) => (float)ToDouble(num);
+		public double ToDouble() => ToDouble(this);
+		public float ToFloat() => ToFloat(this);
 		private static void PadSignificand(ref long significand, ref int exponent, bool div2 = false) {
 			long div = long.MaxValue / significand;
 			if (div2)
@@ -210,12 +426,18 @@ namespace TerrariaPathFinderTesting {
 				right.exponent += rightRed;
 			}
 		}
-		public bool None => Significand <= 0;
-
-		public override string ToString() => S(2);
+		public bool IsNone => Significand <= 0;
+		public bool IsZero => Significand == 0;
+		public bool IsNegative => Significand < 0;
+		public bool IsPositive => Significand > 0;
+		public static readonly BigNumber Zero = new BigNumber(0);
+		public static readonly BigNumber One = new BigNumber(1);
+		public static BigNumber Min(BigNumber left, BigNumber right) => left < right ? left : right;
+		public static BigNumber Max(BigNumber left, BigNumber right) => left > right ? left : right;
+		public override string ToString() => S();
 
 		private const char after9 = (char)('9' + 1);
-		public string S(int decimals = 4, bool scientific = true) {
+		public string S(int decimals = 2, bool scientific = false) {
 			string s = Significand.ToString();
 			int frontLen = Significand < 0 ? 2 : 1;
 			int exp = CombinedExponent;
@@ -365,6 +587,8 @@ namespace TerrariaPathFinderTesting {
 		internal static BigNumber Read(BinaryReader reader) {
 			return new BigNumber(reader.ReadInt64(), reader.ReadInt32());
 		}
+
+		public BigNumber Pow10(int pow) => new BigNumber(Significand, Exponent + pow);
 	}
 
 	public static class MathLib {

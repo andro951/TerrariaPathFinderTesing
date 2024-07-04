@@ -14,7 +14,9 @@ class Program {
 	public static void Main(string[] args) {
 		//TerrariaPathFinderTesting.Test();
 
-		LargeNumberTesting.Test();
+		//LargeNumberTesting.Test();
+
+		TripleTesting.Test();
 
 		//ByteLog2Testing();
 
@@ -32,7 +34,7 @@ class Program {
 			for (ushort j = 0; j < ushort.MaxValue; j++) {
 				id = (ushort)(id % ushort.MaxValue + 1);
 				if (id == 0)
-					$"id: {id}, j: {j}".LogSimple();
+					$"id: {id}, j: {j}".Log();
 			}
 		}
 	}
@@ -53,15 +55,15 @@ class Program {
 			writer.WriteNumber(n.num, n.bits);
 		}
 
-		$"writer: {writer}".LogSimple();
+		$"writer: {writer}".Log();
 
 		TestReader reader = new(writer.Value);
 		foreach ((uint num, int bits) n in nums) {
 			uint result = reader.ReadNumber(n.bits);
-			$"({result}, {n.bits}),".LogSimple();
+			$"({result}, {n.bits}),".Log();
 		}
 
-		$"reader: {reader}".LogSimple();
+		$"reader: {reader}".Log();
 
 
 	}
@@ -108,17 +110,17 @@ class Program {
 
 		stopwatch3.Stop();
 
-		$"0; ticks: {stopwatch.ElapsedTicks}, ms: {stopwatch.ElapsedMilliseconds}".LogSimple();
-		$"1; ticks: {stopwatch1.ElapsedTicks}, ms: {stopwatch1.ElapsedMilliseconds}".LogSimple();
-		$"2; ticks: {stopwatch2.ElapsedTicks}, ms: {stopwatch2.ElapsedMilliseconds}".LogSimple();
-		$"3; ticks: {stopwatch3.ElapsedTicks}, ms: {stopwatch3.ElapsedMilliseconds}".LogSimple();
+		$"0; ticks: {stopwatch.ElapsedTicks}, ms: {stopwatch.ElapsedMilliseconds}".Log();
+		$"1; ticks: {stopwatch1.ElapsedTicks}, ms: {stopwatch1.ElapsedMilliseconds}".Log();
+		$"2; ticks: {stopwatch2.ElapsedTicks}, ms: {stopwatch2.ElapsedMilliseconds}".Log();
+		$"3; ticks: {stopwatch3.ElapsedTicks}, ms: {stopwatch3.ElapsedMilliseconds}".Log();
 
 		for (byte b = 0; b < byte.MaxValue; b++) {
 			int r = b.BitsNeeded_Old();
 			int r1 = b.BitsNeeded_1();
 			int r2 = b.BitsNeeded_2();
 			int r3 = b.BitsNeeded_3();
-			$"{b}; r: {r}, r1: {r1}, r2: {r2}, r3: {r3}{(r != r1 || r != r2 || r != r3 ? " NOT EQUAL!!!!" : "")}".LogSimple();
+			$"{b}; r: {r}, r1: {r1}, r2: {r2}, r3: {r3}{(r != r1 || r != r2 || r != r3 ? " NOT EQUAL!!!!" : "")}".Log();
 		}
 	}
 

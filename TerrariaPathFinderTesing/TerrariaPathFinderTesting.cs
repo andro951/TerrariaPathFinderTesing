@@ -15,7 +15,7 @@ namespace TerrariaPathFinderTesting {
 			return tileType == 3;
 		}
 		public static void Test() {
-			"test".LogSimple();
+			"test".Log();
 			MainT.tile.WriteAll();
 			//C.HasPath(0, 9, 6, 6, 20, (x, y) => MainT.tile[x, y].TileType == 1, MainT.tileMaxX - 1, MainT.tileMaxY - 1);
 			C.HasPath2(9, 0, 20, IsPath, IsTarget, MainT.tileMaxX - 1, MainT.tileMaxY - 1);
@@ -137,7 +137,7 @@ namespace TerrariaPathFinderTesting {
 			bool hasPath = FindPath2(centerX, centerY, 0);
 
 			PathGrid = null;
-			resultPath.LogSimple();
+			resultPath.Log();
 			resultPath = null;
 
 			return hasPath;
@@ -254,7 +254,7 @@ namespace TerrariaPathFinderTesting {
 			}
 		}
 		private static bool FindPath2(int x, int y, int currentDistance, int fromDirection = -1, int previousFrom = -1) {
-			$"x: {x}, y: {y}, rX: {x + xStart}, rY: {y + yStart}, currentDistance: {currentDistance}, from: {fromDirection}, prevFrom: {previousFrom}".LogSimple();
+			$"x: {x}, y: {y}, rX: {x + xStart}, rY: {y + yStart}, currentDistance: {currentDistance}, from: {fromDirection}, prevFrom: {previousFrom}".Log();
 			int opposite = fromDirection >= 0 ? (fromDirection + 2) % 4 : -1;
 			int previousOpposite = previousFrom >= 0 ? (previousFrom + 2) % 4 : -1;
 			for (int directionID = 0; directionID < 4; directionID++) {
@@ -317,7 +317,7 @@ namespace TerrariaPathFinderTesting {
 			}
 
 			//$"x: {x}, y: {y} return false".Log();
-			"".LogSimple();
+			"".Log();
 			return false;
 		}
 	}
@@ -416,7 +416,7 @@ namespace TerrariaPathFinderTesting {
 				s += "\n";
 			}
 			s += "\n";
-			s.LogSimple();
+			s.Log();
 		}
 		private static Tile2[,] _tile = null;
 		private static void SetupTile() {
@@ -439,7 +439,7 @@ namespace TerrariaPathFinderTesting {
 		}
 	}
 	public static class UtilityMethods {
-		public static void LogSimple(this string s) => Console.WriteLine(s);
+		public static void Log(this string s) => Console.WriteLine(s);
 		public static void LogError(this string s) {
 			ConsoleColor originalColor = Console.ForegroundColor;
 			Console.ForegroundColor = ConsoleColor.Red;

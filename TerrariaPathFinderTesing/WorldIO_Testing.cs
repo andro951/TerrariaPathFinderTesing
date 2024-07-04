@@ -28,7 +28,7 @@ namespace TerrariaPathFinderTesing {
 				SaveWorld(false);
 			}
 			catch (Exception exception) {
-				$"Failed to save world; exception: {exception}".LogSimple();
+				$"Failed to save world; exception: {exception}".Log();
 				//FancyErrorPrinter.ShowFileSavingFailError(exception, Main.WorldPath);
 				throw;
 			}
@@ -84,7 +84,7 @@ namespace TerrariaPathFinderTesing {
 				s = $" ticks: {stopwatch?.ElapsedTicks}, ms: {stopwatch?.ElapsedMilliseconds}, bytes: {new FileInfo(pathName).Length}";
 			}
 
-			$"Completed Saving Andro Mod World Data.{s}".LogSimple();
+			$"Completed Saving Andro Mod World Data.{s}".Log();
 
 			byte[] array2 = null;
 			if (FileUtilities.Exists(pathName, useCloudSaving))
@@ -141,7 +141,7 @@ namespace TerrariaPathFinderTesing {
 
 				}
 				catch (Exception lastThrownLoadException) {
-					$"failed to load world. {lastThrownLoadException}".LogSimple();
+					$"failed to load world. {lastThrownLoadException}".Log();
 					try {
 						binaryReader.Close();
 						memoryStream.Close();
@@ -153,7 +153,7 @@ namespace TerrariaPathFinderTesing {
 				}
 			}
 			catch (Exception lastThrownLoadException2) {
-				$"failed to load world. {lastThrownLoadException2}".LogSimple();
+				$"failed to load world. {lastThrownLoadException2}".Log();
 				return;
 			}
 		}
@@ -264,7 +264,7 @@ namespace TerrariaPathFinderTesing {
 									s = $" ticks: {SaveStopWatch?.ElapsedTicks}, ms: {SaveStopWatch?.ElapsedMilliseconds}, bytes: {new FileInfo(pathName).Length}";
 								}
 
-								$"Completed Saving Andro Mod World Data.{s}".LogSimple();
+								$"Completed Saving Andro Mod World Data.{s}".Log();
 							});
 						}
 						finally {
@@ -272,7 +272,7 @@ namespace TerrariaPathFinderTesing {
 						}
 					}
 					catch (Exception exception) {
-						$"Failed to save world; exception: {exception}".LogSimple();
+						$"Failed to save world; exception: {exception}".Log();
 						//FancyErrorPrinter.ShowFileSavingFailError(exception, Main.WorldPath);
 						throw;
 					}
@@ -312,13 +312,13 @@ namespace TerrariaPathFinderTesing {
 								s = $" ticks: {LoadStopWatch?.ElapsedTicks}, ms: {LoadStopWatch?.ElapsedMilliseconds}, bytes: {new FileInfo(pathName).Length}";
 							}
 
-							$"Completed Loading Andro Mod World Data.{s}".LogSimple();
+							$"Completed Loading Andro Mod World Data.{s}".Log();
 
 							//if (SaveString != LoadString)
 							//	$"SaveString != LoadStting!!!!!".LogSimple();
 						}
 						catch (Exception lastThrownLoadException) {
-							$"failed to load world. {lastThrownLoadException}".LogSimple();
+							$"failed to load world. {lastThrownLoadException}".Log();
 							try {
 								binaryReader.Close();
 								memoryStream.Close();
@@ -330,7 +330,7 @@ namespace TerrariaPathFinderTesing {
 						}
 					}
 					catch (Exception lastThrownLoadException2) {
-						$"failed to load world. {lastThrownLoadException2}".LogSimple();
+						$"failed to load world. {lastThrownLoadException2}".Log();
 						return;
 					}
 
@@ -399,10 +399,10 @@ namespace TerrariaPathFinderTesing {
 			}
 
 			if (diff.Count > 0) {
-				$"LoadVsBeforeSave failed at {diff.Count} locations".LogSimple();
+				$"LoadVsBeforeSave failed at {diff.Count} locations".Log();
 			}
 			else {
-				$"LoadVsBeforeSave passed".LogSimple();
+				$"LoadVsBeforeSave passed".Log();
 			}
 		}
 		private static Random rand = new Random();
@@ -1080,7 +1080,7 @@ namespace TerrariaPathFinderTesing {
 				return true;
 			}
 			catch (Exception exception) {
-				$"Failed to create directory; exception: {exception}, folderPath: {folderPath}".LogSimple();
+				$"Failed to create directory; exception: {exception}, folderPath: {folderPath}".Log();
 				//FancyErrorPrinter.ShowDirectoryCreationFailError(exception, folderPath);
 				return false;
 			}

@@ -11,16 +11,16 @@ namespace TerrariaPathFinderTesting {
 			long sqrt = (long)Math.Sqrt(long.MaxValue);//3037000499, 1011_0101_0000_0100_1111_0011_0011_0011
 			long max = 0b0111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
 			long max2 = 0x7FFFFFFFFFFFFFFF;
-			$"max: {max}, max2: {max2}, long.MaxValue: {long.MaxValue}".LogSimple();
+			$"max: {max}, max2: {max2}, long.MaxValue: {long.MaxValue}".Log();
 			long sqr = sqrt * sqrt;
 			long min = long.MaxValue - sqr;
 			long div = min / long.MaxValue;
-			$"sqrt: {sqrt}, sqr: {sqr}, min: {min}, div: {div}".LogSimple();
-			$"sqrt in binary: {Convert.ToString(sqrt, 2)}".LogSimple();
+			$"sqrt: {sqrt}, sqr: {sqr}, min: {min}, div: {div}".Log();
+			$"sqrt in binary: {Convert.ToString(sqrt, 2)}".Log();
 
 			long SquareRootOfLong = 3037000499;
 			long test = (SquareRootOfLong + 1) * (SquareRootOfLong + 1);
-			$"test: {test}".LogSimple();
+			$"test: {test}".Log();
 
 			//BigNumber left = new(684127, 100);
 			//BigNumber right = new(25, 1);
@@ -43,167 +43,175 @@ namespace TerrariaPathFinderTesting {
 			BigNumber right2 = new(25, 103);
 
 			BigNumber mult2 = left2 * right2;
-			$"left2: {left2}, right2: {right2}, mult2: {mult2}".LogSimple();
+			$"left2: {left2}, right2: {right2}, mult2: {mult2}".Log();
 			BigNumber add2 = left2 + right2;
-			$"left2: {left2}, right2: {right2}, add2: {add2}".LogSimple();
+			$"left2: {left2}, right2: {right2}, add2: {add2}".Log();
 			BigNumber div2 = left2 / right2;
-			$"left2: {left2}, right2: {right2}, div2: {div2}".LogSimple();
+			$"left2: {left2}, right2: {right2}, div2: {div2}".Log();
 			BigNumber sub2 = left2 - right2;
-			$"left2: {left2}, right2: {right2}, sub2: {sub2}".LogSimple();
+			$"left2: {left2}, right2: {right2}, sub2: {sub2}".Log();
 
 			BigNumber mul3 = right2 * left2;
-			$"left2: {right2}, right2: {left2}, mul3: {mul3}".LogSimple();
+			$"left2: {right2}, right2: {left2}, mul3: {mul3}".Log();
 			BigNumber add3 = right2 + left2;
-			$"left2: {right2}, right2: {left2}, add3: {add3}".LogSimple();
+			$"left2: {right2}, right2: {left2}, add3: {add3}".Log();
 			BigNumber div3 = right2 / left2;
-			$"left2: {right2}, right2: {left2}, div3: {div3}".LogSimple();
+			$"left2: {right2}, right2: {left2}, div3: {div3}".Log();
 			BigNumber sub3 = right2 - left2;
-			$"left2: {right2}, right2: {left2}, sub3: {sub3}".LogSimple();
+			$"left2: {right2}, right2: {left2}, sub3: {sub3}".Log();
 
 			BigNumber left3 = new(-153231, -2);
 			BigNumber right3 = new(2648, 0);
 
 			BigNumber mult4 = left3 * right3;
-			$"left3: {left3}, right3: {right3}, mult4: {mult4}".LogSimple();
+			$"left3: {left3}, right3: {right3}, mult4: {mult4}".Log();
 			BigNumber add4 = left3 + right3;
-			$"left3: {left3}, right3: {right3}, add4: {add4}".LogSimple();
+			$"left3: {left3}, right3: {right3}, add4: {add4}".Log();
 			BigNumber div4 = left3 / right3;
-			$"left3: {left3}, right3: {right3}, div4: {div4}".LogSimple();
+			$"left3: {left3}, right3: {right3}, div4: {div4}".Log();
 			BigNumber sub4 = left3 - right3;
-			$"left3: {left3}, right3: {right3}, sub4: {sub4}".LogSimple();
+			$"left3: {left3}, right3: {right3}, sub4: {sub4}".Log();
 			BigNumber mul5 = right3 * left3;
-			$"left3: {right3}, right3: {left3}, mul5: {mul5}".LogSimple();
+			$"left3: {right3}, right3: {left3}, mul5: {mul5}".Log();
 			BigNumber add5 = right3 + left3;
-			$"left3: {right3}, right3: {left3}, add5: {add5}".LogSimple();
+			$"left3: {right3}, right3: {left3}, add5: {add5}".Log();
 			BigNumber div5 = right3 / left3;
-			$"left3: {right3}, right3: {left3}, div5: {div5}".LogSimple();
+			$"left3: {right3}, right3: {left3}, div5: {div5}".Log();
 			BigNumber sub5 = right3 - left3;
-			$"left3: {right3}, right3: {left3}, sub5: {sub5}".LogSimple();
+			$"left3: {right3}, right3: {left3}, sub5: {sub5}".Log();
 
 			int testInt = -3;
 			int testInt2 = testInt >> 1;
-			$"testInd: {testInt} ({Convert.ToString(testInt, 2)}), testInt >> 1 = {testInt2} ({Convert.ToString(testInt2, 2)})".LogSimple();
+			$"testInd: {testInt} ({Convert.ToString(testInt, 2)}), testInt >> 1 = {testInt2} ({Convert.ToString(testInt2, 2)})".Log();
 
 			float f3 = 11f;
 			BigNumber floatNumber3 = new(f3);
-			$"floatNumber3: {f3} => {floatNumber3}".LogSimple();
+			$"floatNumber3: {f3} => {floatNumber3}".Log();
 
 			float f4 = 12f;
 			BigNumber floatNumber4 = new(f4);
-			$"floatNumber4: {f4} => {floatNumber4}".LogSimple();
+			$"floatNumber4: {f4} => {floatNumber4}".Log();
 
 			float f = -1532.31f;
 			BigNumber floatNumber = new(f);
-			$"floatNumber: {f} => {floatNumber}".LogSimple();
+			$"floatNumber: {f} => {floatNumber}".Log();
 
 			float f2 = 161345683213540000000000000000000000f;
 			BigNumber floatNumber2 = new(f2);
-			$"floatNumber2: {f2} => {floatNumber2}".LogSimple();
+			$"floatNumber2: {f2} => {floatNumber2}".Log();
 
 			double d = -1532.31;
 			BigNumber doubleNumber = new(d);
-			$"doubleNumber: {d} => {doubleNumber}".LogSimple();
+			$"doubleNumber: {d} => {doubleNumber}".Log();
 
 			double d2 = 161345683213540000000000000000000000.0;
 			BigNumber bigNumber2 = new(d2);
-			$"bigNumber2: {d2} => {bigNumber2}".LogSimple();
+			$"bigNumber2: {d2} => {bigNumber2}".Log();
 
 			double d3 = 16134568321354e290;
 			BigNumber bigNumber3 = new(d3);
-			$"bigNumber3: {d3} => {bigNumber3}".LogSimple();
+			$"bigNumber3: {d3} => {bigNumber3}".Log();
 
 			BigNumber j1 = new(-1532.31f);
 			BigNumber k1 = new(1.9f);
 			BigNumber j1M = j1 * k1;
-			$"j1M = {j1} * {k1}: {j1M}".LogSimple();
+			$"j1M = {j1} * {k1}: {j1M}".Log();
 
 			BigNumber j2 = new(-1532.31f);
 			BigNumber k2 = new(2f);
 			BigNumber j2M = j2 * k2;
-			$"j2M = {j2} * {k2}: {j2M}".LogSimple();
+			$"j2M = {j2} * {k2}: {j2M}".Log();
 
 			BigNumber j3 = new(-1532.31f);
 			BigNumber k3 = new(4f);
 			BigNumber j3M = j3 * k3;
-			$"j3M = {j3} * {k3}: {j3M}".LogSimple();
+			$"j3M = {j3} * {k3}: {j3M}".Log();
 
 			BigNumber j4 = new(-1532.31f);
 			BigNumber k4 = new(8f);
 			BigNumber j4M = j4 * k4;
-			$"j4M = {j4} * {k4}: {j4M}".LogSimple();
+			$"j4M = {j4} * {k4}: {j4M}".Log();
 
 			BigNumber j5 = new(-1532.31f);
 			BigNumber k5 = new(16f);
 			BigNumber j5M = j5 * k5;
-			$"j5M = {j5} * {k5}: {j5M}".LogSimple();
+			$"j5M = {j5} * {k5}: {j5M}".Log();
 
 			BigNumber j6 = new(-1532.31f);
 			BigNumber k6 = new(32f);
 			BigNumber j6M = j6 * k6;
-			$"j6M = {j6} * {k6}: {j6M}".LogSimple();
+			$"j6M = {j6} * {k6}: {j6M}".Log();
 
 			BigNumber j7 = new(-1532.31f);
 			BigNumber k7 = new(64f);
 			BigNumber j7M = j7 * k7;
-			$"j7M = {j7} * {k7}: {j7M}".LogSimple();
+			$"j7M = {j7} * {k7}: {j7M}".Log();
 
 			BigNumber j8 = new(-1532.31f);
 			BigNumber k8 = new(-2f);
 			BigNumber j8M = j8 * k8;
-			$"j8M = {j8} * {k8}: {j8M}".LogSimple();
+			$"j8M = {j8} * {k8}: {j8M}".Log();
 
 			BigNumber j9 = new(-1532.31f);
 			BigNumber k9 = new(-4f);
 			BigNumber j9M = j9 * k9;
-			$"j9M = {j9} * {k9}: {j9M}".LogSimple();
+			$"j9M = {j9} * {k9}: {j9M}".Log();
 
 			BigNumber j10 = new(-1532.31f);
 			BigNumber k10 = new(-8f);
 			BigNumber j10M = j10 * k10;
-			$"j10M = {j10} * {k10}: {j10M}".LogSimple();
+			$"j10M = {j10} * {k10}: {j10M}".Log();
 
 			BigNumber j11 = new(-1532.31f);
 			BigNumber k11 = new(-16f);
 			BigNumber j11M = j11 * k11;
-			$"j11M = {j11} * {k11}: {j11M}".LogSimple();
+			$"j11M = {j11} * {k11}: {j11M}".Log();
 
 			BigNumber j12 = new(-1532.31f);
 			BigNumber k12 = new(-32f);
 			BigNumber j12M = j12 * k12;
-			$"j12M = {j12} * {k12}: {j12M}".LogSimple();
+			$"j12M = {j12} * {k12}: {j12M}".Log();
 
 			BigNumber j13 = new(-1532.31f);
 			BigNumber k13 = new(-64f);
 			BigNumber j13M = j13 * k13;
-			$"j13M = {j13} * {k13}: {j13M}".LogSimple();
+			$"j13M = {j13} * {k13}: {j13M}".Log();
 
 			BigNumber j14 = new(-1532.31f);
 			BigNumber k14 = new(1f);
 			BigNumber j14M = j14 * k14;
-			$"j14M = {j14} * {k14}: {j14M}".LogSimple();
+			$"j14M = {j14} * {k14}: {j14M}".Log();
 
 			BigNumber j15 = new(-1532.31f);
 			BigNumber k15 = new(-1f);
 			BigNumber j15M = j15 * k15;
-			$"j15M = {j15} * {k15}: {j15M}".LogSimple();
+			$"j15M = {j15} * {k15}: {j15M}".Log();
 
 			BigNumber j16 = new(-1532.31f);
 			BigNumber k16 = new(0f);
 			BigNumber j16M = j16 * k16;
-			$"j16M = {j16} * {k16}: {j16M}".LogSimple();
+			$"j16M = {j16} * {k16}: {j16M}".Log();
 
 			BigNumber t1 = new(-1532.31f);
 			BigNumber t1M = t1 * 2f;
-			$"t1M = {t1} * 2f: {t1M}".LogSimple();
+			$"t1M = {t1} * 2f: {t1M}".Log();
 
 			t1 *= 2f;
-			$"t1 *= 2f: {t1}".LogSimple();
+			$"t1 *= 2f: {t1}".Log();
 
 			BigNumber a1 = new(10);
 			BigNumber a2 = new(1);
 
 			BigNumber a3 = a1 - a2;
-			$"a3 = {a1} - {a2}: {a3}".LogSimple();
+			$"a3 = {a1} - {a2}: {a3}".Log();
+
+			BigNumber d1 = 2d;
+			$"d1 = 2d: {d1} ({d1.Significand}, {d1.Exponent})".Log();
+
+			BigNumber f11 = 2f;
+			BigNumber f12 = 2f;
+			BigNumber f13 = f11 * f12;
+			$"f13 = {f11} * {f12}: {f13}".Log();
 
 			Test_CalculateSignificandExponent();
 		}
@@ -269,12 +277,12 @@ namespace TerrariaPathFinderTesting {
 
 		private static bool logAllInfo_CalculateSignificandExponent => true || logAllInfo;
 		public static void Test_CalculateSignificandExponent() {
-			$"Test_CalculateSignificandExponent".LogSimple();
+			$"Test_CalculateSignificandExponent".Log();
 			foreach (TestData_CalculateSignificandExponent testData in testData_CalculateSignificandExponents) {
 				BigNumber testNum = new(testData.Significand, testData.Exponent);
 
 				if (logAllInfo_CalculateSignificandExponent)
-					$"testNum.Significand: {testNum.Significand}, testData.Significand: {testData.Significand}, testNum: {testNum}".LogSimple();
+					$"testNum.Significand: {testNum.Significand}, testData.Significand: {testData.Significand}, testNum: {testNum}".Log();
 
 				if (testNum.Significand != testData.Significand) {
 					$"testNum.Significand != testData.Significand, testNum.Significand: {testNum.Significand}, testData.Significand: {testData.Significand}, testNum: {testNum}".LogError();
@@ -282,7 +290,7 @@ namespace TerrariaPathFinderTesting {
 
 
 				if (logAllInfo_CalculateSignificandExponent)
-					$"testNum.Exponent: {testNum.Exponent}, testData.ExpectedExponent: {testData.ExpectedExponent}, testNum: {testNum}".LogSimple();
+					$"testNum.Exponent: {testNum.Exponent}, testData.ExpectedExponent: {testData.ExpectedExponent}, testNum: {testNum}".Log();
 
 				if (testNum.Exponent != testData.ExpectedExponent) {
 					$"testNum.Exponent != testData.ExpectedExponent, testNum.Exponent: {testNum.Exponent}, testData.ExpectedExponent: {testData.ExpectedExponent}, testNum: {testNum}".LogError();
@@ -290,7 +298,7 @@ namespace TerrariaPathFinderTesting {
 
 
 				if (logAllInfo_CalculateSignificandExponent)
-					$"testNum.SignificandExponent: {testNum.SignificandExponent}, testData.ExpectedSignificandExponent: {testData.ExpectedSignificandExponent}, testNum: {testNum}".LogSimple();
+					$"testNum.SignificandExponent: {testNum.SignificandExponent}, testData.ExpectedSignificandExponent: {testData.ExpectedSignificandExponent}, testNum: {testNum}".Log();
 
 				if (testNum.SignificandExponent != testData.ExpectedSignificandExponent) {
 					$"testNum.SignificandExponent != testData.ExpectedSignificandExponent, testNum.SignificandExponent: {testNum.SignificandExponent}, testData.ExpectedSignificandExponent: {testData.ExpectedSignificandExponent}, testNum: {testNum}".LogError();
@@ -298,7 +306,7 @@ namespace TerrariaPathFinderTesting {
 
 
 				if (logAllInfo_CalculateSignificandExponent)
-					$"testNum.ToString(): {testNum.ToString()}, testData.ExpectedToStringScientific2: {testData.ExpectedToStringScientific2}".LogSimple();
+					$"testNum.ToString(): {testNum.ToString()}, testData.ExpectedToStringScientific2: {testData.ExpectedToStringScientific2}".Log();
 
 				if (testNum.ToString() != testData.ExpectedToStringScientific2) {
 					$"testNum.ToString() != testData.ExpectedToStringScientific2, testNum.ToString(): {testNum.ToString()}, testData.ExpectedToStringScientific2: {testData.ExpectedToStringScientific2}".LogError();
@@ -307,7 +315,7 @@ namespace TerrariaPathFinderTesting {
 
 				int d = 3;
 				if (logAllInfo_CalculateSignificandExponent)
-					$"testNum.S({d}): {testNum.S(d)}, testData.ExpectedToStringScientific3: {testData.ExpectedToStringScientific3}".LogSimple();
+					$"testNum.S({d}): {testNum.S(d)}, testData.ExpectedToStringScientific3: {testData.ExpectedToStringScientific3}".Log();
 
 				if (testNum.S(d) != testData.ExpectedToStringScientific3) {
 					$"testNum.S({d}) != testData.ExpectedToStringScientific3, testNum.S({d}): {testNum.S(d)}, testData.ExpectedToStringScientific3: {testData.ExpectedToStringScientific3}".LogError();
@@ -316,7 +324,7 @@ namespace TerrariaPathFinderTesting {
 
 				d = 2;
 				if (logAllInfo_CalculateSignificandExponent)
-					$"testNum.S({d}, false): {testNum.S(d, false)}, testData.ExpectedToString2: {testData.ExpectedToString2}".LogSimple();
+					$"testNum.S({d}, false): {testNum.S(d, false)}, testData.ExpectedToString2: {testData.ExpectedToString2}".Log();
 
 				if (testNum.S(d, false) != testData.ExpectedToString2) {
 					$"testNum.S({d}, false) != testData.ExpectedToString2, testNum.S({d}, false): {testNum.S(d, false)}, testData.ExpectedToString2: {testData.ExpectedToString2}".LogError();
@@ -324,7 +332,7 @@ namespace TerrariaPathFinderTesting {
 
 				d = 3;
 				if (logAllInfo_CalculateSignificandExponent)
-					$"testNum.S({d}, false): {testNum.S(d, false)}, testData.ExpectedToString3: {testData.ExpectedToString3}".LogSimple();
+					$"testNum.S({d}, false): {testNum.S(d, false)}, testData.ExpectedToString3: {testData.ExpectedToString3}".Log();
 
 				if (testNum.S(d, false) != testData.ExpectedToString3) {
 					$"testNum.S({d}, false) != testData.ExpectedToString3, testNum.S({d}, false): {testNum.S(d, false)}, testData.ExpectedToString3: {testData.ExpectedToString3}".LogError();
@@ -332,7 +340,7 @@ namespace TerrariaPathFinderTesting {
 
 
 				if (logAllInfo_CalculateSignificandExponent)
-					"".LogSimple();//Space
+					"".Log();//Space
 			}
 		}
 	}

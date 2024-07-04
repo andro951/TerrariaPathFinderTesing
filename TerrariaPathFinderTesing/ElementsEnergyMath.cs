@@ -16,10 +16,10 @@ namespace TerrariaPathFinderTesing {
 		//Joules = Watts * Seconds
 		public static void Testing() {
 			ElementInfo iron = Element.Iron.ToElementInfo();
-			$"{iron.Name}; JoulesPerCM3: {iron.JoulesPerCM3}, AtomicMass: {iron.AtomicMass}, Density: {iron.Density}".LogSimple();
+			$"{iron.Name}; JoulesPerCM3: {iron.JoulesPerCM3}, AtomicMass: {iron.AtomicMass}, Density: {iron.Density}".Log();
 
 			ElementInfo gold = Element.Gold.ToElementInfo();
-			$"{gold.Name}; JoulesPerCM3: {gold.JoulesPerCM3}, AtomicMass: {gold.AtomicMass}, Density: {gold.Density}".LogSimple();
+			$"{gold.Name}; JoulesPerCM3: {gold.JoulesPerCM3}, AtomicMass: {gold.AtomicMass}, Density: {gold.Density}".Log();
 		}
 		public static ElementInfo ToElementInfo(this Element element) => ToElementInfo((int)element);
 		public static ElementInfo ToElementInfo(this int atomicNumber) => Elements[atomicNumber - 1];
