@@ -16,7 +16,7 @@ class Program {
 
 		//LargeNumberTesting.Test();
 
-		TripleTesting.Test();
+		//TripleTesting.Test();
 
 		//ByteLog2Testing();
 
@@ -27,6 +27,8 @@ class Program {
 		//TestUShortOverflow();
 
 		//ElementsEnergyMath.Testing();
+
+		MathOperationsTesting.Test();
 	}
 	private static void TestUShortOverflow() {
 		ushort id = 1;
